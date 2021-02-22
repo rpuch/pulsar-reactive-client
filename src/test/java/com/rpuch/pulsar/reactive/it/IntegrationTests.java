@@ -1,6 +1,7 @@
 package com.rpuch.pulsar.reactive.it;
 
 import com.rpuch.pulsar.reactive.api.ReactivePulsarClient;
+import com.rpuch.pulsar.reactive.api.ReactiveReader;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
@@ -24,6 +26,7 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * @author Roman Puchkovskiy
@@ -128,6 +131,35 @@ public class IntegrationTests extends TestWithPulsar {
                 producer.send(Integer.toString(i));
             }
         }
+    }
+
+    @Test
+    void forOneReadsSuccessfully() throws Exception {
+        produceZeroToNineWithoutSchema();
+
+        Mono<Message<byte[]>> messageMono = reactiveClient.newReader()
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .forOne(reader -> reader.receive().next());
+
+        StepVerifier.create(messageMono)
+                .assertNext(message -> assertThat(intFromBytes(message.getData()), is(0)));
+    }
+
+    @Test
+    void forManyReadsSuccessfully() throws Exception {
+        produceZeroToNineWithoutSchema();
+
+        Flux<Message<byte[]>> messages = reactiveClient.newReader()
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .forMany(ReactiveReader::receive);
+        List<Integer> resultInts = messages.map(Message::getValue)
+                .map(this::intFromBytes)
+                .take(10)
+                .toStream().collect(toList());
+
+        assertThat(resultInts, equalTo(listOfZeroToNine()));
     }
 
     @Test

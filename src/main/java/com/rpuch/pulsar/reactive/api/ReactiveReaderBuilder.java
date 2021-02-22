@@ -8,9 +8,11 @@ import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Range;
 import org.apache.pulsar.client.api.ReaderBuilder;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * @author Roman Puchkovskiy
@@ -21,6 +23,10 @@ public interface ReactiveReaderBuilder<T> extends Cloneable {
     }
 
     Flux<Message<T>> receive();
+
+    <U> Mono<U> forOne(Function<? super ReactiveReader<T>, ? extends Mono<U>> transformation);
+
+    <U> Flux<U> forMany(Function<? super ReactiveReader<T>, ? extends Flux<U>> transformation);
 
     ReactiveReaderBuilder<T> loadConf(Map<String, Object> config);
 

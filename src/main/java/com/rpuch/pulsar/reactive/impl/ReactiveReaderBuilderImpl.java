@@ -1,5 +1,6 @@
 package com.rpuch.pulsar.reactive.impl;
 
+import com.rpuch.pulsar.reactive.api.ReactiveReader;
 import com.rpuch.pulsar.reactive.api.ReactiveReaderBuilder;
 import org.apache.pulsar.client.api.ConsumerCryptoFailureAction;
 import org.apache.pulsar.client.api.CryptoKeyReader;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * @author Roman Puchkovskiy
@@ -104,9 +106,23 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
 
     @Override
     public Flux<Message<T>> receive() {
+        return forMany(ReactiveReader::receive);
+    }
+
+    @Override
+    public <U> Mono<U> forOne(Function<? super ReactiveReader<T>, ? extends Mono<U>> transformation) {
+        return Mono.usingWhen(
+                createCoreReader(),
+                coreReader -> transformation.apply(new ReactiveReaderImpl<>(coreReader)),
+                coreReader -> Mono.fromFuture(coreReader::closeAsync)
+        );
+    }
+
+    @Override
+    public <U> Flux<U> forMany(Function<? super ReactiveReader<T>, ? extends Flux<U>> transformation) {
         return Flux.usingWhen(
                 createCoreReader(),
-                coreReader -> new ReactiveReaderImpl<>(coreReader).receive(),
+                coreReader -> transformation.apply(new ReactiveReaderImpl<>(coreReader)),
                 coreReader -> Mono.fromFuture(coreReader::closeAsync)
         );
     }
