@@ -47,4 +47,9 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
     public Mono<Void> seek(MessageId messageId) {
         return Mono.fromFuture(() -> reader.seekAsync(messageId));
     }
+
+    @Override
+    public Mono<Void> seek(long timestamp) {
+        return Mono.fromFuture(() -> reader.seekAsync(timestamp));
+    }
 }

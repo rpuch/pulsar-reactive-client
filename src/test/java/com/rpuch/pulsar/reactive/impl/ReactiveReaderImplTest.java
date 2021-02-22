@@ -110,4 +110,13 @@ class ReactiveReaderImplTest {
 
         verify(coreReader).seekAsync(messageId);
     }
+
+    @Test
+    void seekByTimestampCallsCorrespondingAsyncMethodOnCoreReader() {
+        when(coreReader.seekAsync(123)).thenReturn(completedFuture(null));
+
+        reactiveReader.seek(123).block();
+
+        verify(coreReader).seekAsync(123);
+    }
 }

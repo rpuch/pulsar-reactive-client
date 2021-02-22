@@ -211,7 +211,7 @@ public class IntegrationTests extends TestWithPulsar {
     @Test
     void seekByMessageIdPositionsSubsequentReads() throws Exception {
         produceZeroToNineWithoutSchema();
-        MessageId thirdMessageId = getThirdMessageId();
+        MessageId thirdMessageId = getThirdMessage().getMessageId();
 
         Message<byte[]> fourthMessage = reactiveClient.newReader()
                 .topic(topic)
@@ -223,14 +223,29 @@ public class IntegrationTests extends TestWithPulsar {
         assertThat(intFromBytes(fourthMessage.getData()), is(3));
     }
 
-    private MessageId getThirdMessageId() {
+    private Message<byte[]> getThirdMessage() {
         Message<byte[]> thirdMessage = reactiveClient.newReader()
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
                 .forMany(reactiveReader -> reactiveReader.receive().take(3))
                 .blockLast();
         assertThat(thirdMessage, notNullValue());
-        return thirdMessage.getMessageId();
+        return thirdMessage;
+    }
+
+    @Test
+    void seekByTimestampPositionsSubsequentReads() throws Exception {
+        produceZeroToNineWithoutSchema();
+        long thirdMessageTimestamp = getThirdMessage().getPublishTime();
+
+        Message<byte[]> thirdMessageMessageAgain = reactiveClient.newReader()
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .forMany(reader -> reader.seek(thirdMessageTimestamp).thenMany(reader.receive()))
+                .blockFirst();
+        assertThat(thirdMessageMessageAgain, notNullValue());
+
+        assertThat(intFromBytes(thirdMessageMessageAgain.getData()), is(2));
     }
 
     @Test

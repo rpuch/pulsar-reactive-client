@@ -20,4 +20,6 @@ public interface ReactiveReader<T> {
     boolean isConnected();
 
     Mono<Void> seek(MessageId messageId);
+
+    Mono<Void> seek(long timestamp);
 }
