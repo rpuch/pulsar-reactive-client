@@ -2,6 +2,7 @@ package com.rpuch.pulsar.reactive.reactor;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
+import reactor.core.publisher.FluxSink.OverflowStrategy;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -15,7 +16,7 @@ public class ChainStream {
             Chain<T> chain = new Chain<>(futureProvider, sink);
             sink.onRequest(chain::onRequest);
             sink.onCancel(chain::onCancel);
-        }, FluxSink.OverflowStrategy.ERROR);
+        }, OverflowStrategy.ERROR);
     }
 
     private ChainStream() {

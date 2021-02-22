@@ -1,6 +1,8 @@
 package com.rpuch.pulsar.reactive.impl;
 
+import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.MessageId;
+import org.apache.pulsar.client.api.Range;
 import org.apache.pulsar.client.api.Reader;
 import org.apache.pulsar.client.api.ReaderBuilder;
 import org.junit.jupiter.api.Assertions;
@@ -16,7 +18,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.rpuch.pulsar.reactive.impl.NextMessageAnswer.failWith;
 import static com.rpuch.pulsar.reactive.impl.NextMessageAnswer.produce;
+import static java.util.Collections.emptyMap;
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static org.apache.pulsar.client.api.ConsumerCryptoFailureAction.FAIL;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +38,13 @@ class ReactiveReaderBuilderImplTest {
 
     @Mock
     private Reader<String> coreReader;
+    
+    @Test
+    void invokesLoadConfOnCoreReader() {
+        readerBuilder.loadConf(emptyMap());
+
+        verify(coreReaderBuilder).loadConf(emptyMap());
+    }
 
     @Test
     void setsTopicOnCoreReader() {
@@ -60,6 +72,59 @@ class ReactiveReaderBuilderImplTest {
         readerBuilder.startMessageIdInclusive();
 
         verify(coreReaderBuilder).startMessageIdInclusive();
+    }
+
+    @Test
+    void setsCryptoKeyReaderOnCoreReader() {
+        CryptoKeyReader cryptoKeyReader = mock(CryptoKeyReader.class);
+
+        readerBuilder.cryptoKeyReader(cryptoKeyReader);
+
+        verify(coreReaderBuilder).cryptoKeyReader(cryptoKeyReader);
+    }
+
+    @Test
+    void setsCryptoFailureActionOnCoreReader() {
+        readerBuilder.cryptoFailureAction(FAIL);
+
+        verify(coreReaderBuilder).cryptoFailureAction(FAIL);
+    }
+
+    @Test
+    void setsReceiverQueueSizeOnCoreReader() {
+        readerBuilder.receiverQueueSize(1);
+
+        verify(coreReaderBuilder).receiverQueueSize(1);
+    }
+
+    @Test
+    void setsReaderNameOnCoreReader() {
+        readerBuilder.readerName("name");
+
+        verify(coreReaderBuilder).readerName("name");
+    }
+
+    @Test
+    void setsSubscriptionRolePrefixOnCoreReader() {
+        readerBuilder.subscriptionRolePrefix("prefix");
+
+        verify(coreReaderBuilder).subscriptionRolePrefix("prefix");
+    }
+
+    @Test
+    void setsReadCompactedOnCoreReader() {
+        readerBuilder.readCompacted(true);
+
+        verify(coreReaderBuilder).readCompacted(true);
+    }
+
+    @Test
+    void setsKeyHashRangeOnCoreReader() {
+        Range range = Range.of(0, 1);
+        
+        readerBuilder.keyHashRange(range);
+
+        verify(coreReaderBuilder).keyHashRange(range);
     }
 
     @Test

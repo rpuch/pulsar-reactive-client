@@ -1,13 +1,17 @@
 package com.rpuch.pulsar.reactive.impl;
 
 import com.rpuch.pulsar.reactive.api.ReactiveReaderBuilder;
+import org.apache.pulsar.client.api.ConsumerCryptoFailureAction;
+import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
+import org.apache.pulsar.client.api.Range;
 import org.apache.pulsar.client.api.Reader;
 import org.apache.pulsar.client.api.ReaderBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,6 +22,18 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
 
     public ReactiveReaderBuilderImpl(ReaderBuilder<T> coreBuilder) {
         this.coreBuilder = coreBuilder;
+    }
+
+    @Override
+    public ReactiveReaderBuilder<T> loadConf(Map<String, Object> config) {
+        coreBuilder.loadConf(config);
+        return this;
+    }
+
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
+    @Override
+    public ReactiveReaderBuilder<T> clone() {
+        return new ReactiveReaderBuilderImpl<>(coreBuilder.clone());
     }
 
     @Override
@@ -41,6 +57,48 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
     @Override
     public ReactiveReaderBuilder<T> startMessageIdInclusive() {
         coreBuilder.startMessageIdInclusive();
+        return this;
+    }
+
+    @Override
+    public ReactiveReaderBuilder<T> cryptoKeyReader(CryptoKeyReader cryptoKeyReader) {
+        coreBuilder.cryptoKeyReader(cryptoKeyReader);
+        return this;
+    }
+
+    @Override
+    public ReactiveReaderBuilder<T> cryptoFailureAction(ConsumerCryptoFailureAction action) {
+        coreBuilder.cryptoFailureAction(action);
+        return this;
+    }
+
+    @Override
+    public ReactiveReaderBuilder<T> receiverQueueSize(int receiverQueueSize) {
+        coreBuilder.receiverQueueSize(receiverQueueSize);
+        return this;
+    }
+
+    @Override
+    public ReactiveReaderBuilder<T> readerName(String readerName) {
+        coreBuilder.readerName(readerName);
+        return this;
+    }
+
+    @Override
+    public ReactiveReaderBuilder<T> subscriptionRolePrefix(String subscriptionRolePrefix) {
+        coreBuilder.subscriptionRolePrefix(subscriptionRolePrefix);
+        return this;
+    }
+
+    @Override
+    public ReactiveReaderBuilder<T> readCompacted(boolean readCompacted) {
+        coreBuilder.readCompacted(readCompacted);
+        return this;
+    }
+
+    @Override
+    public ReactiveReaderBuilder<T> keyHashRange(Range... ranges) {
+        coreBuilder.keyHashRange(ranges);
         return this;
     }
 
