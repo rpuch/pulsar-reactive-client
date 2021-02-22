@@ -5,6 +5,7 @@ import com.rpuch.pulsar.reactive.reactor.ChainStream;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.Reader;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Roman Puchkovskiy
@@ -29,5 +30,10 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
     @Override
     public boolean hasReachedEndOfTopic() {
         return reader.hasReachedEndOfTopic();
+    }
+
+    @Override
+    public Mono<Boolean> hasMessageAvailable() {
+        return Mono.fromFuture(reader::hasMessageAvailableAsync);
     }
 }

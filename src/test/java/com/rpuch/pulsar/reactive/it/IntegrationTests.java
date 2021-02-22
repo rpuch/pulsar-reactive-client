@@ -2,7 +2,6 @@ package com.rpuch.pulsar.reactive.it;
 
 import com.rpuch.pulsar.reactive.api.ReactivePulsarClient;
 import com.rpuch.pulsar.reactive.api.ReactiveReader;
-import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
@@ -17,6 +16,8 @@ import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.time.Duration;
 import java.util.List;
@@ -182,6 +183,24 @@ public class IntegrationTests extends TestWithPulsar {
                 .toStream().collect(toList());
 
         assertThat(resultInts, equalTo(listOfZeroToNine()));
+    }
+
+    @Test
+    void hasMessageAvailableReturnsExpectedValues() throws Exception {
+        produceZeroToNineWithoutSchema();
+
+        Mono<Tuple2<Boolean, Boolean>> trueFalse = reactiveClient.newReader()
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .forOne(
+                        reader -> reader.hasMessageAvailable().zipWhen(
+                                availableBefore -> reader.receive().take(10).then(reader.hasMessageAvailable())
+                        )
+                );
+
+        StepVerifier.create(trueFalse)
+                .expectNext(Tuples.of(true, false))
+                .verifyComplete();
     }
 
     private void terminateTopic() {

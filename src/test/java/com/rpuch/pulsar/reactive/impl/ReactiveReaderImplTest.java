@@ -12,6 +12,7 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
@@ -79,5 +80,15 @@ class ReactiveReaderImplTest {
         when(coreReader.hasReachedEndOfTopic()).thenReturn(true);
 
         assertThat(reactiveReader.hasReachedEndOfTopic(), is(true));
+    }
+
+    @Test
+    void hasMessageAvailableTakesDataFromReaderHasMessageAvailableAsync() {
+        when(coreReader.hasMessageAvailableAsync()).thenReturn(completedFuture(true));
+
+        reactiveReader.hasMessageAvailable()
+                .as(StepVerifier::create)
+                .expectNext(true)
+                .verifyComplete();
     }
 }
