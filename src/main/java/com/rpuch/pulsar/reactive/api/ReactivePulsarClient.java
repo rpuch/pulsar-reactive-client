@@ -26,4 +26,8 @@ public interface ReactivePulsarClient extends Closeable {
     void close() throws PulsarClientException;
 
     Mono<Void> closeReactively();
+
+    void shutdown() throws PulsarClientException;
+
+    boolean isClosed();
 }

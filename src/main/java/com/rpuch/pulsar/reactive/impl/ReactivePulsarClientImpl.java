@@ -43,4 +43,14 @@ public class ReactivePulsarClientImpl implements ReactivePulsarClient {
     public Mono<Void> closeReactively() {
         return Mono.fromFuture(coreClient::closeAsync);
     }
+
+    @Override
+    public void shutdown() throws PulsarClientException {
+        coreClient.shutdown();
+    }
+
+    @Override
+    public boolean isClosed() {
+        return coreClient.isClosed();
+    }
 }

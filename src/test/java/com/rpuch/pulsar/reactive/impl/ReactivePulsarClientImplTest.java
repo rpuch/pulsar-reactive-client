@@ -11,6 +11,7 @@ import reactor.test.StepVerifier;
 import java.util.Arrays;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,14 +21,14 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ReactivePulsarClientImplTest {
     @InjectMocks
-    private ReactivePulsarClientImpl pulsarClient;
+    private ReactivePulsarClientImpl reactiveClient;
 
     @Mock
     private PulsarClient coreClient;
 
     @Test
     void closesCoreClientOnClose() throws Exception {
-        pulsarClient.close();
+        reactiveClient.close();
 
         verify(coreClient).close();
     }
@@ -36,7 +37,7 @@ class ReactivePulsarClientImplTest {
     void closesCoreClientAsynchronouslyOnReactiveCloseSubscription() {
         when(coreClient.closeAsync()).thenReturn(completedFuture(null));
 
-        pulsarClient.closeReactively()
+        reactiveClient.closeReactively()
                 .as(StepVerifier::create)
                 .verifyComplete();
 
@@ -48,9 +49,25 @@ class ReactivePulsarClientImplTest {
         when(coreClient.getPartitionsForTopic("topic"))
                 .thenReturn(completedFuture(Arrays.asList("a", "b")));
 
-        pulsarClient.getPartitionsForTopic("topic")
+        reactiveClient.getPartitionsForTopic("topic")
                 .as(StepVerifier::create)
                 .expectNext(Arrays.asList("a", "b"))
                 .verifyComplete();
+    }
+
+    @Test
+    void shutdownCallsShutdownOnCoreClient() throws Exception {
+        reactiveClient.shutdown();
+
+        verify(coreClient).shutdown();
+    }
+
+    @Test
+    void isClosedConsultsCoreClient() {
+        when(coreClient.isClosed()).thenReturn(true);
+
+        assertTrue(reactiveClient.isClosed());
+
+        verify(coreClient).isClosed();
     }
 }
