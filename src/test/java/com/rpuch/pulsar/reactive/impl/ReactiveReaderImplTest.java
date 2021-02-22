@@ -78,21 +78,21 @@ class ReactiveReaderImplTest {
     }
 
     @Test
-    void receiveNextReceivesMessageFromReadNextAsync() {
+    void readNextReceivesMessageFromReadNextAsync() {
         when(coreReader.readNextAsync()).then(NextMessageAnswer.produce("a", "b"));
 
-        reactiveReader.receiveNext()
+        reactiveReader.readNext()
                 .as(StepVerifier::create)
                 .assertNext(message -> assertThat(message.getValue(), is("a")))
                 .verifyComplete();
     }
 
     @Test
-    void receiveNextConvertsFailureToError() {
+    void readNextConvertsFailureToError() {
         Exception exception = new Exception("Oops");
         when(coreReader.readNextAsync()).then(NextMessageAnswer.failWith(exception));
 
-        reactiveReader.receiveNext()
+        reactiveReader.readNext()
                 .as(StepVerifier::create)
                 .expectErrorSatisfies(ex -> assertThat(ex, sameInstance(exception)))
                 .verify();

@@ -29,7 +29,7 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
     }
 
     @Override
-    public Mono<Message<T>> receiveNext() {
+    public Mono<Message<T>> readNext() {
         return Mono.fromFuture(reader::readNextAsync);
     }
 
