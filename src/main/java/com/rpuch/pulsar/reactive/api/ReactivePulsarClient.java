@@ -1,10 +1,23 @@
 package com.rpuch.pulsar.reactive.api;
 
-import org.apache.pulsar.client.api.ReaderBuilder;
+import com.rpuch.pulsar.reactive.impl.ReactivePulsarClientImpl;
+import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.api.Schema;
+
+import java.io.Closeable;
 
 /**
  * @author Roman Puchkovskiy
  */
-public interface ReactivePulsarClient {
-    ReaderBuilder<byte[]> newReader();
+public interface ReactivePulsarClient extends Closeable {
+    static ReactivePulsarClient from(PulsarClient coreClient) {
+        return new ReactivePulsarClientImpl(coreClient);
+    }
+
+    ReactiveReaderBuilder<byte[]> newReader();
+
+    <T> ReactiveReaderBuilder<T> newReader(Schema<T> schema);
+
+    void close() throws PulsarClientException;
 }
