@@ -4,6 +4,7 @@ import com.rpuch.pulsar.reactive.impl.ReactivePulsarClientImpl;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
+import reactor.core.publisher.Mono;
 
 import java.io.Closeable;
 
@@ -20,4 +21,6 @@ public interface ReactivePulsarClient extends Closeable {
     <T> ReactiveReaderBuilder<T> newReader(Schema<T> schema);
 
     void close() throws PulsarClientException;
+
+    Mono<Void> closeReactively();
 }

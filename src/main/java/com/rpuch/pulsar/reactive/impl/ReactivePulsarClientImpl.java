@@ -5,6 +5,7 @@ import com.rpuch.pulsar.reactive.api.ReactiveReaderBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Roman Puchkovskiy
@@ -29,5 +30,10 @@ public class ReactivePulsarClientImpl implements ReactivePulsarClient {
     @Override
     public void close() throws PulsarClientException {
         coreClient.close();
+    }
+
+    @Override
+    public Mono<Void> closeReactively() {
+        return Mono.fromFuture(coreClient::closeAsync);
     }
 }
