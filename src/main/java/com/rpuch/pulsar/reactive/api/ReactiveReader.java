@@ -13,6 +13,8 @@ public interface ReactiveReader<T> {
 
     Flux<Message<T>> receive();
 
+    Mono<Message<T>> receiveNext();
+
     boolean hasReachedEndOfTopic();
 
     Mono<Boolean> hasMessageAvailable();

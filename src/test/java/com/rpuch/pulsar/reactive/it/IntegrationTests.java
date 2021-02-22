@@ -138,6 +138,20 @@ public class IntegrationTests extends TestWithPulsar {
     }
 
     @Test
+    void receiveNextReadsSuccessfully() throws Exception {
+        produceZeroToNineWithoutSchema();
+
+        Mono<Message<byte[]>> firstMessage = reactiveClient.newReader()
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .forOne(ReactiveReader::receiveNext);
+
+        StepVerifier.create(firstMessage)
+                .assertNext(message -> assertThat(intFromBytes(message.getData()), is(0)))
+                .verifyComplete();
+    }
+
+    @Test
     void forOneReadsSuccessfully() throws Exception {
         produceZeroToNineWithoutSchema();
 
@@ -246,6 +260,26 @@ public class IntegrationTests extends TestWithPulsar {
         assertThat(thirdMessageMessageAgain, notNullValue());
 
         assertThat(intFromBytes(thirdMessageMessageAgain.getData()), is(2));
+    }
+
+    @Test
+    void receiveNextPlaysWellWithSeek() throws Exception {
+        produceZeroToNineWithoutSchema();
+        MessageId thirdMessageId = getThirdMessage().getMessageId();
+
+        Mono<Message<byte[]>> fifthMessage = reactiveClient.newReader()
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .forOne(reader -> {
+                    return reader.receiveNext()
+                            .then(reader.seek(thirdMessageId))
+                            .then(reader.receiveNext())
+                            .then(reader.receiveNext());
+                });
+
+        StepVerifier.create(fifthMessage)
+                .assertNext(message -> assertThat(intFromBytes(message.getData()), is(4)))
+                .verifyComplete();
     }
 
     @Test

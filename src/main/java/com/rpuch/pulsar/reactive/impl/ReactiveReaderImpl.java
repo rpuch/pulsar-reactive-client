@@ -29,6 +29,11 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
     }
 
     @Override
+    public Mono<Message<T>> receiveNext() {
+        return Mono.fromFuture(reader::readNextAsync);
+    }
+
+    @Override
     public boolean hasReachedEndOfTopic() {
         return reader.hasReachedEndOfTopic();
     }
