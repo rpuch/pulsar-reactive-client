@@ -36,4 +36,9 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
     public Mono<Boolean> hasMessageAvailable() {
         return Mono.fromFuture(reader::hasMessageAvailableAsync);
     }
+
+    @Override
+    public boolean isConnected() {
+        return reader.isConnected();
+    }
 }

@@ -15,4 +15,6 @@ public interface ReactiveReader<T> {
     boolean hasReachedEndOfTopic();
 
     Mono<Boolean> hasMessageAvailable();
+
+    boolean isConnected();
 }

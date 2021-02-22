@@ -91,4 +91,11 @@ class ReactiveReaderImplTest {
                 .expectNext(true)
                 .verifyComplete();
     }
+
+    @Test
+    void isConnectedConsultsWithCoreReader() {
+        when(coreReader.isConnected()).thenReturn(true);
+
+        assertThat(reactiveReader.isConnected(), is(true));
+    }
 }
