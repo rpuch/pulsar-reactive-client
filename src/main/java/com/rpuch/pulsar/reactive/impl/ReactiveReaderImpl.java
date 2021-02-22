@@ -3,6 +3,7 @@ package com.rpuch.pulsar.reactive.impl;
 import com.rpuch.pulsar.reactive.api.ReactiveReader;
 import com.rpuch.pulsar.reactive.reactor.ChainStream;
 import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Reader;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,5 +41,10 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
     @Override
     public boolean isConnected() {
         return reader.isConnected();
+    }
+
+    @Override
+    public Mono<Void> seek(MessageId messageId) {
+        return Mono.fromFuture(() -> reader.seekAsync(messageId));
     }
 }

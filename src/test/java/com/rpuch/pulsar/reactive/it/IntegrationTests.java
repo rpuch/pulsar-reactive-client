@@ -30,6 +30,7 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * @author Roman Puchkovskiy
@@ -185,6 +186,10 @@ public class IntegrationTests extends TestWithPulsar {
         assertThat(resultInts, equalTo(listOfZeroToNine()));
     }
 
+    private void terminateTopic() {
+        new AdminClient(adminServiceUrl()).terminateTopic(topic);
+    }
+
     @Test
     void hasMessageAvailableReturnsExpectedValues() throws Exception {
         produceZeroToNineWithoutSchema();
@@ -203,8 +208,29 @@ public class IntegrationTests extends TestWithPulsar {
                 .verifyComplete();
     }
 
-    private void terminateTopic() {
-        new AdminClient(adminServiceUrl()).terminateTopic(topic);
+    @Test
+    void seekByMessageIdPositionsSubsequentReads() throws Exception {
+        produceZeroToNineWithoutSchema();
+        MessageId thirdMessageId = getThirdMessageId();
+
+        Message<byte[]> fourthMessage = reactiveClient.newReader()
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .forMany(reader -> reader.seek(thirdMessageId).thenMany(reader.receive()))
+                .blockFirst();
+        assertThat(fourthMessage, notNullValue());
+
+        assertThat(intFromBytes(fourthMessage.getData()), is(3));
+    }
+
+    private MessageId getThirdMessageId() {
+        Message<byte[]> thirdMessage = reactiveClient.newReader()
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .forMany(reactiveReader -> reactiveReader.receive().take(3))
+                .blockLast();
+        assertThat(thirdMessage, notNullValue());
+        return thirdMessage.getMessageId();
     }
 
     @Test

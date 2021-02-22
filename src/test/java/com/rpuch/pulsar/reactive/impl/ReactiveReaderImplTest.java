@@ -1,6 +1,7 @@
 package com.rpuch.pulsar.reactive.impl;
 
 import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Reader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,5 +99,15 @@ class ReactiveReaderImplTest {
         when(coreReader.isConnected()).thenReturn(true);
 
         assertThat(reactiveReader.isConnected(), is(true));
+    }
+
+    @Test
+    void seekByMessageIdCallsCorrespondingAsyncMethodOnCoreReader() {
+        MessageId messageId = mock(MessageId.class);
+        when(coreReader.seekAsync(messageId)).thenReturn(completedFuture(null));
+
+        reactiveReader.seek(messageId).block();
+
+        verify(coreReader).seekAsync(messageId);
     }
 }

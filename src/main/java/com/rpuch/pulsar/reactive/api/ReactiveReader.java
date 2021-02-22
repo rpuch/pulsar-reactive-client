@@ -1,6 +1,7 @@
 package com.rpuch.pulsar.reactive.api;
 
 import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.client.api.MessageId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -17,4 +18,6 @@ public interface ReactiveReader<T> {
     Mono<Boolean> hasMessageAvailable();
 
     boolean isConnected();
+
+    Mono<Void> seek(MessageId messageId);
 }
