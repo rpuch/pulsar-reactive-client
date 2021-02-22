@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -26,7 +28,7 @@ import static org.hamcrest.Matchers.equalTo;
 /**
  * @author Roman Puchkovskiy
  */
-public class ReceiveTest extends TestWithPulsar {
+public class IntegrationTests extends TestWithPulsar {
     private PulsarClient coreClient;
     private ReactivePulsarClient reactiveClient;
 
@@ -126,5 +128,19 @@ public class ReceiveTest extends TestWithPulsar {
                 producer.send(Integer.toString(i));
             }
         }
+    }
+
+    @Test
+    void returnsPartitionsViaGetPartitionsForTopic() throws Exception {
+        triggerTopicCreation();
+
+        reactiveClient.getPartitionsForTopic(topic)
+                .as(StepVerifier::create)
+                .expectNext(singletonList(topic))
+                .verifyComplete();
+    }
+
+    private void triggerTopicCreation() throws PulsarClientException {
+        produceZeroToNineWithoutSchema();
     }
 }

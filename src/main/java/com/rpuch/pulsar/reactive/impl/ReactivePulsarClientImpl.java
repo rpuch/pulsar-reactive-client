@@ -7,6 +7,8 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 /**
  * @author Roman Puchkovskiy
  */
@@ -25,6 +27,11 @@ public class ReactivePulsarClientImpl implements ReactivePulsarClient {
     @Override
     public <T> ReactiveReaderBuilder<T> newReader(Schema<T> schema) {
         return new ReactiveReaderBuilderImpl<>(coreClient.newReader(schema));
+    }
+
+    @Override
+    public Mono<List<String>> getPartitionsForTopic(String topic) {
+        return Mono.fromFuture(() -> coreClient.getPartitionsForTopic(topic));
     }
 
     @Override
