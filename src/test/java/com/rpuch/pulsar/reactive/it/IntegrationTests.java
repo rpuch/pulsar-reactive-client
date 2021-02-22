@@ -2,6 +2,7 @@ package com.rpuch.pulsar.reactive.it;
 
 import com.rpuch.pulsar.reactive.api.ReactivePulsarClient;
 import com.rpuch.pulsar.reactive.api.ReactiveReader;
+import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
@@ -10,6 +11,7 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.schema.StringSchema;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
@@ -160,6 +162,30 @@ public class IntegrationTests extends TestWithPulsar {
                 .toStream().collect(toList());
 
         assertThat(resultInts, equalTo(listOfZeroToNine()));
+    }
+
+    @Test
+    @Disabled("Enable back when it becomes clear to 'take data until the topic is terminated'")
+    void hasReachedEndOfTopicSeesEndOfTopic() throws Exception {
+        produceZeroToNineWithoutSchema();
+        terminateTopic();
+
+        Flux<Message<byte[]>> messages = reactiveClient.newReader()
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .forMany(
+                        reader -> reader.receive().takeUntil(msg -> reader.hasReachedEndOfTopic())
+                );
+        List<Integer> resultInts = messages.map(Message::getValue)
+                .map(this::intFromBytes)
+                .timeout(Duration.ofSeconds(10))
+                .toStream().collect(toList());
+
+        assertThat(resultInts, equalTo(listOfZeroToNine()));
+    }
+
+    private void terminateTopic() {
+        new AdminClient(adminServiceUrl()).terminateTopic(topic);
     }
 
     @Test

@@ -7,5 +7,9 @@ import reactor.core.publisher.Flux;
  * @author Roman Puchkovskiy
  */
 public interface ReactiveReader<T> {
+    String getTopic();
+
     Flux<Message<T>> receive();
+
+    boolean hasReachedEndOfTopic();
 }

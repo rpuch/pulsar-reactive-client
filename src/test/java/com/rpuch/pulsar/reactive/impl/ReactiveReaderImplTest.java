@@ -31,6 +31,13 @@ class ReactiveReaderImplTest {
     private Reader<String> coreReader;
 
     @Test
+    void getTopicConsultsWithCoreReader() {
+        when(coreReader.getTopic()).thenReturn("a");
+
+        assertThat(reactiveReader.getTopic(), is("a"));
+    }
+
+    @Test
     void receiveReceivesMessagesFromRepetitiveReadNextAsync() {
         when(coreReader.readNextAsync()).then(NextMessageAnswer.produce("a", "b"));
 
@@ -67,4 +74,10 @@ class ReactiveReaderImplTest {
         messages.limitRequest(1).blockFirst();
     }
 
+    @Test
+    void hasReachedEndOfTopicConsultsWithCoreReader() {
+        when(coreReader.hasReachedEndOfTopic()).thenReturn(true);
+
+        assertThat(reactiveReader.hasReachedEndOfTopic(), is(true));
+    }
 }

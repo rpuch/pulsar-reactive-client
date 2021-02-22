@@ -53,4 +53,8 @@ public abstract class TestWithPulsar {
     protected static String pulsarBrokerUrl() {
         return pulsar.getPulsarBrokerUrl();
     }
+
+    protected static String adminServiceUrl() {
+        return pulsar.getHttpServiceUrl();
+    }
 }

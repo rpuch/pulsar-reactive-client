@@ -17,7 +17,17 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
     }
 
     @Override
+    public String getTopic() {
+        return reader.getTopic();
+    }
+
+    @Override
     public Flux<Message<T>> receive() {
         return ChainStream.infiniteChain(reader::readNextAsync);
+    }
+
+    @Override
+    public boolean hasReachedEndOfTopic() {
+        return reader.hasReachedEndOfTopic();
     }
 }
