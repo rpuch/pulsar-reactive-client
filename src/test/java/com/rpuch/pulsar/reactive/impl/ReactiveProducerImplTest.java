@@ -1,5 +1,6 @@
 package com.rpuch.pulsar.reactive.impl;
 
+import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerStats;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
@@ -9,13 +10,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.test.StepVerifier;
 
+import static com.rpuch.pulsar.reactive.utils.Futures.failedFuture;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -30,9 +35,10 @@ class ReactiveProducerImplTest {
     private Producer<String> coreProducer;
 
     @Mock
-    private TypedMessageBuilder<byte[]> byteArrayMessageBuilder;
-    @Mock
     private TypedMessageBuilder<String> messageBuilder;
+
+    @Mock
+    private MessageId messageId;
 
     @Test
     void getTopicConsultsCoreProducer() {
@@ -46,6 +52,38 @@ class ReactiveProducerImplTest {
         when(coreProducer.getProducerName()).thenReturn("a");
 
         assertThat(reactiveProducer.getProducerName(), is("a"));
+    }
+
+    @Test
+    void sendUsesSendAsync() {
+        when(coreProducer.sendAsync("payload")).thenReturn(completedFuture(messageId));
+
+        reactiveProducer.send("payload")
+                .as(StepVerifier::create)
+                .expectNext(messageId)
+                .verifyComplete();
+    }
+
+    @Test
+    void sendRelaysErrorFromFutureFailure() {
+        RuntimeException exception = new RuntimeException("Oops");
+        when(coreProducer.sendAsync("payload")).thenReturn(failedFuture(exception));
+
+        reactiveProducer.send("payload")
+                .as(StepVerifier::create)
+                .expectErrorSatisfies(ex -> assertThat(ex, sameInstance(exception)))
+                .verify();
+    }
+
+    @Test
+    void flushUsesSendAsync() {
+        when(coreProducer.flushAsync()).thenReturn(completedFuture(null));
+
+        reactiveProducer.flush()
+                .as(StepVerifier::create)
+                .verifyComplete();
+
+        verify(coreProducer).flushAsync();
     }
 
     @Test

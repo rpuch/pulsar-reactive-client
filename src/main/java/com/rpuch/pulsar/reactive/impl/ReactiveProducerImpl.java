@@ -30,12 +30,12 @@ public class ReactiveProducerImpl<T> implements ReactiveProducer<T> {
 
     @Override
     public Mono<MessageId> send(T message) {
-        throw new UnsupportedOperationException("Not yet");
+        return Mono.fromFuture(() -> coreProducer.sendAsync(message));
     }
 
     @Override
     public Mono<Void> flush() {
-        throw new UnsupportedOperationException("Not yet");
+        return Mono.fromFuture(coreProducer::flushAsync);
     }
 
     @Override
