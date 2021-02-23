@@ -23,11 +23,13 @@ import java.util.concurrent.TimeUnit;
 import static com.rpuch.pulsar.reactive.impl.NextMessageAnswer.failWith;
 import static com.rpuch.pulsar.reactive.impl.NextMessageAnswer.produce;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.stream.Collectors.toList;
 import static org.apache.pulsar.client.api.ConsumerCryptoFailureAction.FAIL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -39,21 +41,21 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ReactiveReaderBuilderImplTest {
     @InjectMocks
-    private ReactiveReaderBuilderImpl<String> readerBuilder;
+    private ReactiveReaderBuilderImpl<String> reactiveBuilder;
 
     @Mock
-    private ReaderBuilder<String> coreReaderBuilder;
+    private ReaderBuilder<String> coreBuilder;
 
     @Mock
     private Reader<String> coreReader;
     
     @Test
     void receiveReadsFromCoreReaderUsingReadNextAsync() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.readNextAsync()).then(produce("a", "b"));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        List<String> result = readerBuilder.receive()
+        List<String> result = reactiveBuilder.receive()
                 .map(Message::getValue)
                 .take(2)
                 .toStream().collect(toList());
@@ -63,33 +65,33 @@ class ReactiveReaderBuilderImplTest {
 
     @Test
     void closesCoreReaderAfterASubscriptionToFluxReturnedByReceiveCompletesNormally() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.readNextAsync()).then(produce("a", "b"));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        readerBuilder.receive().take(2).blockLast();
+        reactiveBuilder.receive().take(2).blockLast();
 
         verify(coreReader).closeAsync();
     }
 
     @Test
     void closesCoreReaderAfterASubscriptionToFluxReturnedByReceiveCompletesWithError() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.readNextAsync()).then(failWith(new RuntimeException("Oops")));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        assertThrows(RuntimeException.class, () -> readerBuilder.receive().blockLast());
+        assertThrows(RuntimeException.class, () -> reactiveBuilder.receive().blockLast());
 
         verify(coreReader).closeAsync();
     }
 
     @Test
     void closesCoreReaderAfterASubscriptionToFluxReturnedByReceiveIsCancelled() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.readNextAsync()).then(produce("a", "b"));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        Disposable disposable = readerBuilder.receive().concatMap(x -> Mono.never()).subscribe();
+        Disposable disposable = reactiveBuilder.receive().concatMap(x -> Mono.never()).subscribe();
         disposable.dispose();
 
         verify(coreReader).closeAsync();
@@ -97,10 +99,10 @@ class ReactiveReaderBuilderImplTest {
     
     @Test
     void forOneReturnsResullOfInternalTransformation() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        readerBuilder.forOne(reader -> Mono.just("a"))
+        reactiveBuilder.forOne(reader -> Mono.just("a"))
                 .as(StepVerifier::create)
                 .expectNext("a")
                 .verifyComplete();
@@ -108,31 +110,31 @@ class ReactiveReaderBuilderImplTest {
 
     @Test
     void closesCoreReaderAfterASubscriptionToMonoReturnedByForOneCompletesNormally() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        readerBuilder.forOne(reader -> Mono.just("a")).block();
+        reactiveBuilder.forOne(reader -> Mono.just("a")).block();
 
         verify(coreReader).closeAsync();
     }
 
     @Test
     void closesCoreReaderAfterASubscriptionToMonoReturnedByForOneCompletesWithError() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
         assertThrows(RuntimeException.class,
-                () -> readerBuilder.forOne(reader -> Mono.error(new RuntimeException("Oops"))).block());
+                () -> reactiveBuilder.forOne(reader -> Mono.error(new RuntimeException("Oops"))).block());
 
         verify(coreReader).closeAsync();
     }
 
     @Test
     void closesCoreReaderAfterASubscriptionToMonoReturnedByForOneIsCancelled() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        Disposable disposable = readerBuilder.forOne(reader -> Mono.just("a")).subscribe();
+        Disposable disposable = reactiveBuilder.forOne(reader -> Mono.just("a")).subscribe();
         disposable.dispose();
 
         verify(coreReader).closeAsync();
@@ -140,10 +142,10 @@ class ReactiveReaderBuilderImplTest {
 
     @Test
     void forManyReturnsResullOfInternalTransformation() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        readerBuilder.forMany(reader -> Flux.just("a"))
+        reactiveBuilder.forMany(reader -> Flux.just("a"))
                 .as(StepVerifier::create)
                 .expectNext("a")
                 .verifyComplete();
@@ -151,121 +153,182 @@ class ReactiveReaderBuilderImplTest {
 
     @Test
     void closesCoreReaderAfterASubscriptionToFluxReturnedByForManyCompletesNormally() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        readerBuilder.forMany(reader -> Flux.just("a")).blockLast();
+        reactiveBuilder.forMany(reader -> Flux.just("a")).blockLast();
 
         verify(coreReader).closeAsync();
     }
 
     @Test
     void closesCoreReaderAfterASubscriptionToFluxReturnedByForManyCompletesWithError() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
         assertThrows(RuntimeException.class,
-                () -> readerBuilder.forMany(reader -> Flux.error(new RuntimeException("Oops"))).blockLast());
+                () -> reactiveBuilder.forMany(reader -> Flux.error(new RuntimeException("Oops"))).blockLast());
 
         verify(coreReader).closeAsync();
     }
 
     @Test
     void closesCoreReaderAfterASubscriptionToFluxReturnedByForManyIsCancelled() {
-        when(coreReaderBuilder.createAsync()).thenReturn(completedFuture(coreReader));
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        Disposable disposable = readerBuilder.forMany(reader -> Flux.just("a")).subscribe();
+        Disposable disposable = reactiveBuilder.forMany(reader -> Flux.just("a")).subscribe();
         disposable.dispose();
 
         verify(coreReader).closeAsync();
     }
     
     @Test
-    void invokesLoadConfOnCoreReader() {
-        readerBuilder.loadConf(emptyMap());
+    void invokesLoadConfOnCoreBuilder() {
+        reactiveBuilder.loadConf(emptyMap());
 
-        verify(coreReaderBuilder).loadConf(emptyMap());
+        verify(coreBuilder).loadConf(emptyMap());
     }
 
     @Test
-    void setsTopicOnCoreReader() {
-        readerBuilder.topic("a");
-
-        verify(coreReaderBuilder).topic("a");
+    void loadConfReturnsSameBuilder() {
+        assertThat(reactiveBuilder.loadConf(singletonMap("k", "v")), sameInstance(reactiveBuilder));
     }
 
     @Test
-    void setsStartMessageIdOnCoreReader() {
-        readerBuilder.startMessageId(MessageId.earliest);
+    void setsTopicOnCoreBuilder() {
+        reactiveBuilder.topic("a");
 
-        verify(coreReaderBuilder).startMessageId(MessageId.earliest);
+        verify(coreBuilder).topic("a");
     }
 
     @Test
-    void setsstartMessageFromRollbackDurationOnCoreReader() {
-        readerBuilder.startMessageFromRollbackDuration(777, TimeUnit.MILLISECONDS);
-
-        verify(coreReaderBuilder).startMessageFromRollbackDuration(777, TimeUnit.MILLISECONDS);
+    void topicReturnsSameBuilder() {
+        assertThat(reactiveBuilder.topic("test"), sameInstance(reactiveBuilder));
     }
 
     @Test
-    void setsStartMessageIdInclusiveOnCoreReader() {
-        readerBuilder.startMessageIdInclusive();
+    void setsStartMessageIdOnCoreBuilder() {
+        reactiveBuilder.startMessageId(MessageId.earliest);
 
-        verify(coreReaderBuilder).startMessageIdInclusive();
+        verify(coreBuilder).startMessageId(MessageId.earliest);
     }
 
     @Test
-    void setsCryptoKeyReaderOnCoreReader() {
+    void startMessageIdReturnsSameBuilder() {
+        assertThat(reactiveBuilder.startMessageId(MessageId.earliest), sameInstance(reactiveBuilder));
+    }
+
+    @Test
+    void setsStartMessageFromRollbackDurationOnCoreBuilder() {
+        reactiveBuilder.startMessageFromRollbackDuration(777, TimeUnit.MILLISECONDS);
+
+        verify(coreBuilder).startMessageFromRollbackDuration(777, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    void startMessageFromRollbackDurationReturnsSameBuilder() {
+        assertThat(reactiveBuilder.startMessageFromRollbackDuration(123, TimeUnit.SECONDS),
+                sameInstance(reactiveBuilder));
+    }
+
+    @Test
+    void setsStartMessageIdInclusiveOnCoreBuilder() {
+        reactiveBuilder.startMessageIdInclusive();
+
+        verify(coreBuilder).startMessageIdInclusive();
+    }
+
+    @Test
+    void startMessageIdInclusiveReturnsSameBuilder() {
+        assertThat(reactiveBuilder.startMessageIdInclusive(), sameInstance(reactiveBuilder));
+    }
+
+    @Test
+    void setsCryptoKeyReaderOnCoreBuilder() {
         CryptoKeyReader cryptoKeyReader = mock(CryptoKeyReader.class);
 
-        readerBuilder.cryptoKeyReader(cryptoKeyReader);
+        reactiveBuilder.cryptoKeyReader(cryptoKeyReader);
 
-        verify(coreReaderBuilder).cryptoKeyReader(cryptoKeyReader);
+        verify(coreBuilder).cryptoKeyReader(cryptoKeyReader);
     }
 
     @Test
-    void setsCryptoFailureActionOnCoreReader() {
-        readerBuilder.cryptoFailureAction(FAIL);
-
-        verify(coreReaderBuilder).cryptoFailureAction(FAIL);
+    void cryptoKeyReaderReturnsSameBuilder() {
+        assertThat(reactiveBuilder.cryptoKeyReader(mock(CryptoKeyReader.class)), sameInstance(reactiveBuilder));
     }
 
     @Test
-    void setsReceiverQueueSizeOnCoreReader() {
-        readerBuilder.receiverQueueSize(1);
+    void setsCryptoFailureActionOnCoreBuilder() {
+        reactiveBuilder.cryptoFailureAction(FAIL);
 
-        verify(coreReaderBuilder).receiverQueueSize(1);
+        verify(coreBuilder).cryptoFailureAction(FAIL);
     }
 
     @Test
-    void setsReaderNameOnCoreReader() {
-        readerBuilder.readerName("name");
-
-        verify(coreReaderBuilder).readerName("name");
+    void cryptoFailureActionReturnsSameBuilder() {
+        assertThat(reactiveBuilder.cryptoFailureAction(FAIL), sameInstance(reactiveBuilder));
     }
 
     @Test
-    void setsSubscriptionRolePrefixOnCoreReader() {
-        readerBuilder.subscriptionRolePrefix("prefix");
+    void setsReceiverQueueSizeOnCoreBuilder() {
+        reactiveBuilder.receiverQueueSize(1);
 
-        verify(coreReaderBuilder).subscriptionRolePrefix("prefix");
+        verify(coreBuilder).receiverQueueSize(1);
     }
 
     @Test
-    void setsReadCompactedOnCoreReader() {
-        readerBuilder.readCompacted(true);
-
-        verify(coreReaderBuilder).readCompacted(true);
+    void receiverQueueSizeReturnsSameBuilder() {
+        assertThat(reactiveBuilder.receiverQueueSize(123), sameInstance(reactiveBuilder));
     }
 
     @Test
-    void setsKeyHashRangeOnCoreReader() {
+    void setsReaderNameOnCoreBuilder() {
+        reactiveBuilder.readerName("name");
+
+        verify(coreBuilder).readerName("name");
+    }
+
+    @Test
+    void readerNameReturnsSameBuilder() {
+        assertThat(reactiveBuilder.readerName("test"), sameInstance(reactiveBuilder));
+    }
+
+    @Test
+    void setsSubscriptionRolePrefixOnCoreBuilder() {
+        reactiveBuilder.subscriptionRolePrefix("prefix");
+
+        verify(coreBuilder).subscriptionRolePrefix("prefix");
+    }
+
+    @Test
+    void subscriptionRolePrefixReturnsSameBuilder() {
+        assertThat(reactiveBuilder.subscriptionRolePrefix("test"), sameInstance(reactiveBuilder));
+    }
+
+    @Test
+    void setsReadCompactedOnCoreBuilder() {
+        reactiveBuilder.readCompacted(true);
+
+        verify(coreBuilder).readCompacted(true);
+    }
+
+    @Test
+    void readCompactedReturnsSameBuilder() {
+        assertThat(reactiveBuilder.readCompacted(true), sameInstance(reactiveBuilder));
+    }
+
+    @Test
+    void setsKeyHashRangeOnCoreBuilder() {
         Range range = Range.of(0, 1);
         
-        readerBuilder.keyHashRange(range);
+        reactiveBuilder.keyHashRange(range);
 
-        verify(coreReaderBuilder).keyHashRange(range);
+        verify(coreBuilder).keyHashRange(range);
+    }
+
+    @Test
+    void keyHashRangeReturnsSameBuilder() {
+        assertThat(reactiveBuilder.keyHashRange(Range.of(0, 1)), sameInstance(reactiveBuilder));
     }
 }
