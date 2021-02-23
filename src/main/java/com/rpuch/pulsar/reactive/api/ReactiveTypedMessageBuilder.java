@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ *
+ * @author Roman Puchkovskiy
+ */
 public interface ReactiveTypedMessageBuilder<T> {
 
     Mono<MessageId> send();
