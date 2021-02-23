@@ -162,4 +162,10 @@
         </plugins>
     </build>
 
+    <scm>
+        <url>https://github.com/rpuch/pulsar-reactive-client</url>
+        <connection>git@github.com:rpuch/pulsar-reactive-client.git</connection>
+        <developerConnection>git@github.com:rpuch/pulsar-reactive-client.git</developerConnection>
+    </scm>
+
 </project>
