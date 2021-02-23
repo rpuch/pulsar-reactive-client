@@ -26,6 +26,7 @@
     <description>
         A reactive Apache Pulsar client using Reactor Core (an implementation of Reactive Streams specification)
     </description>
+    <url>https://github.com/rpuch/pulsar-reactive-client</url>
 
     <properties>
         <java.version>8</java.version>
