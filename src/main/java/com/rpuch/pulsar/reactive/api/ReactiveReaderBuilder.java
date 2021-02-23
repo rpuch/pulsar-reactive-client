@@ -22,7 +22,7 @@ public interface ReactiveReaderBuilder<T> extends Cloneable {
         return new ReactiveReaderBuilderImpl<>(coreBuilder);
     }
 
-    Flux<Message<T>> receive();
+    Flux<Message<T>> messages();
 
     <U> Mono<U> forOne(Function<? super ReactiveReader<T>, ? extends Mono<U>> transformation);
 

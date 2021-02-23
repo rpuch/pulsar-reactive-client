@@ -34,8 +34,8 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
 
 
     @Override
-    public Flux<Message<T>> receive() {
-        return forMany(ReactiveReader::receive);
+    public Flux<Message<T>> messages() {
+        return forMany(ReactiveReader::messages);
     }
 
     @Override

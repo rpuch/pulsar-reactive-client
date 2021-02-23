@@ -50,12 +50,12 @@ class ReactiveReaderBuilderImplTest {
     private Reader<String> coreReader;
     
     @Test
-    void receiveReadsFromCoreReaderUsingReadNextAsync() {
+    void messagesReadsFromCoreReaderUsingReadNextAsync() {
         when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.readNextAsync()).then(produce("a", "b"));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        List<String> result = reactiveBuilder.receive()
+        List<String> result = reactiveBuilder.messages()
                 .map(Message::getValue)
                 .take(2)
                 .toStream().collect(toList());
@@ -64,34 +64,34 @@ class ReactiveReaderBuilderImplTest {
     }
 
     @Test
-    void closesCoreReaderAfterASubscriptionToFluxReturnedByReceiveCompletesNormally() {
+    void closesCoreReaderAfterASubscriptionToFluxReturnedByMessagesCompletesNormally() {
         when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.readNextAsync()).then(produce("a", "b"));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        reactiveBuilder.receive().take(2).blockLast();
+        reactiveBuilder.messages().take(2).blockLast();
 
         verify(coreReader).closeAsync();
     }
 
     @Test
-    void closesCoreReaderAfterASubscriptionToFluxReturnedByReceiveCompletesWithError() {
+    void closesCoreReaderAfterASubscriptionToFluxReturnedByMessagesCompletesWithError() {
         when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.readNextAsync()).then(failWith(new RuntimeException("Oops")));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        assertThrows(RuntimeException.class, () -> reactiveBuilder.receive().blockLast());
+        assertThrows(RuntimeException.class, () -> reactiveBuilder.messages().blockLast());
 
         verify(coreReader).closeAsync();
     }
 
     @Test
-    void closesCoreReaderAfterASubscriptionToFluxReturnedByReceiveIsCancelled() {
+    void closesCoreReaderAfterASubscriptionToFluxReturnedByMessagesIsCancelled() {
         when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.readNextAsync()).then(produce("a", "b"));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
-        Disposable disposable = reactiveBuilder.receive().concatMap(x -> Mono.never()).subscribe();
+        Disposable disposable = reactiveBuilder.messages().concatMap(x -> Mono.never()).subscribe();
         disposable.dispose();
 
         verify(coreReader).closeAsync();

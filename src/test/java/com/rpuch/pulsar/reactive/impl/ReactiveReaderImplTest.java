@@ -41,10 +41,10 @@ class ReactiveReaderImplTest {
     }
 
     @Test
-    void receiveReceivesMessagesFromRepetitiveReadNextAsync() {
+    void messagesReceivesMessagesFromRepetitiveReadNextAsync() {
         when(coreReader.readNextAsync()).then(NextMessageAnswer.produce("a", "b"));
 
-        reactiveReader.receive()
+        reactiveReader.messages()
                 .as(StepVerifier::create)
                 .assertNext(message -> assertThat(message.getValue(), is("a")))
                 .assertNext(message -> assertThat(message.getValue(), is("b")))
@@ -53,21 +53,21 @@ class ReactiveReaderImplTest {
     }
 
     @Test
-    void receiveConvertsFailureToError() {
+    void messagesConvertsFailureToError() {
         Exception exception = new Exception("Oops");
         when(coreReader.readNextAsync()).then(NextMessageAnswer.failWith(exception));
 
-        reactiveReader.receive()
+        reactiveReader.messages()
                 .as(StepVerifier::create)
                 .expectErrorSatisfies(ex -> assertThat(ex, sameInstance(exception)))
                 .verify();
     }
 
     @Test
-    void onlyCallsReadNextAsyncWhenDemandIsRequestedThroughFluxReturnedByReceive() {
+    void onlyCallsReadNextAsyncWhenDemandIsRequestedThroughFluxReturnedByMessages() {
         when(coreReader.readNextAsync()).then(NextMessageAnswer.produce("a", "b"));
 
-        Flux<Message<String>> messages = reactiveReader.receive();
+        Flux<Message<String>> messages = reactiveReader.messages();
         requestExactlyOneMessage(messages);
 
         verify(coreReader, times(1)).readNextAsync();

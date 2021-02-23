@@ -24,7 +24,7 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
     }
 
     @Override
-    public Flux<Message<T>> receive() {
+    public Flux<Message<T>> messages() {
         return ChainStream.infiniteChain(reader::readNextAsync);
     }
 

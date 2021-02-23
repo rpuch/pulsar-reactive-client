@@ -55,13 +55,13 @@ public class ReaderIntegrationTests extends TestWithPulsar {
     }
 
     @Test
-    void receiveReadsSuccessfully() throws Exception {
+    void messagesReadsSuccessfully() throws Exception {
         produceZeroToNineWithoutSchema();
 
         Flux<Message<byte[]>> messages = reactiveClient.newReader()
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
-                .receive();
+                .messages();
         List<Integer> resultInts = messages.map(Message::getData)
                 .map(this::intFromBytes)
                 .take(10)
@@ -91,11 +91,11 @@ public class ReaderIntegrationTests extends TestWithPulsar {
     }
 
     @Test
-    void receiveStartedWithMessageIdLatestBeforeDataIsProducedReadsTheDataAsItIsProduced() throws Exception {
+    void messagesStartedWithMessageIdLatestBeforeDataIsProducedReadsTheDataAsItIsProduced() throws Exception {
         ConnectableFlux<Message<byte[]>> messages = reactiveClient.newReader()
                 .topic(topic)
                 .startMessageId(MessageId.latest)
-                .receive()
+                .messages()
                 .replay();
         messages.connect();
 
@@ -112,13 +112,13 @@ public class ReaderIntegrationTests extends TestWithPulsar {
     }
 
     @Test
-    void receiveReadsSuccessfullyWithSchema() throws Exception {
+    void messagesReadsSuccessfullyWithSchema() throws Exception {
         produceZeroToNineWithStringSchema();
 
         Flux<Message<String>> messages = reactiveClient.newReader(Schema.STRING)
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
-                .receive();
+                .messages();
         List<Integer> resultInts = messages.map(Message::getValue)
                 .map(converter::intFromString)
                 .take(10)
@@ -156,7 +156,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
         Mono<Message<byte[]>> messageMono = reactiveClient.newReader()
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
-                .forOne(reader -> reader.receive().next());
+                .forOne(reader -> reader.messages().next());
 
         StepVerifier.create(messageMono)
                 .assertNext(message -> assertThat(intFromBytes(message.getData()), is(0)));
@@ -169,7 +169,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
         Flux<Message<byte[]>> messages = reactiveClient.newReader()
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
-                .forMany(ReactiveReader::receive);
+                .forMany(ReactiveReader::messages);
         List<Integer> resultInts = messages.map(Message::getValue)
                 .map(this::intFromBytes)
                 .take(10)
@@ -188,7 +188,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
                 .forMany(
-                        reader -> reader.receive().takeUntil(msg -> reader.hasReachedEndOfTopic())
+                        reader -> reader.messages().takeUntil(msg -> reader.hasReachedEndOfTopic())
                 );
         List<Integer> resultInts = messages.map(Message::getValue)
                 .map(this::intFromBytes)
@@ -211,7 +211,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
                 .startMessageId(MessageId.earliest)
                 .forOne(
                         reader -> reader.hasMessageAvailable().zipWhen(
-                                availableBefore -> reader.receive().take(10).then(reader.hasMessageAvailable())
+                                availableBefore -> reader.messages().take(10).then(reader.hasMessageAvailable())
                         )
                 );
 
@@ -228,7 +228,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
         Message<byte[]> fourthMessage = reactiveClient.newReader()
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
-                .forMany(reader -> reader.seek(thirdMessageId).thenMany(reader.receive()))
+                .forMany(reader -> reader.seek(thirdMessageId).thenMany(reader.messages()))
                 .blockFirst();
         assertThat(fourthMessage, notNullValue());
 
@@ -239,7 +239,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
         Message<byte[]> thirdMessage = reactiveClient.newReader()
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
-                .forMany(reactiveReader -> reactiveReader.receive().take(3))
+                .forMany(reactiveReader -> reactiveReader.messages().take(3))
                 .blockLast();
         assertThat(thirdMessage, notNullValue());
         return thirdMessage;
@@ -253,7 +253,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
         Message<byte[]> thirdMessageMessageAgain = reactiveClient.newReader()
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
-                .forMany(reader -> reader.seek(thirdMessageTimestamp).thenMany(reader.receive()))
+                .forMany(reader -> reader.seek(thirdMessageTimestamp).thenMany(reader.messages()))
                 .blockFirst();
         assertThat(thirdMessageMessageAgain, notNullValue());
 

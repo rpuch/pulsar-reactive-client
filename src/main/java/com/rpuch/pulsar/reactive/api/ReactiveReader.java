@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 public interface ReactiveReader<T> {
     String getTopic();
 
-    Flux<Message<T>> receive();
+    Flux<Message<T>> messages();
 
     Mono<Message<T>> readNext();
 
