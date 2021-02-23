@@ -19,7 +19,7 @@
 
     <groupId>com.rpuch.pulsar-reactive-client</groupId>
     <artifactId>pulsar-client-reactor</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <name>Reactive Pulsar client (with Reactor)</name>
     <description>
@@ -213,7 +213,7 @@
         <url>https://github.com/rpuch/pulsar-reactive-client</url>
         <connection>scm:git:git@github.com:rpuch/pulsar-reactive-client.git</connection>
         <developerConnection>scm:git:git@github.com:rpuch/pulsar-reactive-client.git</developerConnection>
-      <tag>pulsar-client-reactor-1.0.0</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <licenses>
