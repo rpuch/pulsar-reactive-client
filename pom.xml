@@ -4,8 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.rpuch.pulsar-reactive-client</groupId>
-    <artifactId>pulsar-reactive-client</artifactId>
+    <artifactId>pulsar-client-reactor</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+
+    <name>Reactive Pulsar client (with Reactor)</name>
+    <description>
+        Allows to use Apache Pulsar with Reactor Core (an implementation of Reactive Streams specification)
+    </description>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
