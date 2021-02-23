@@ -15,6 +15,7 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
 
         <pulsar.client.version>2.7.0</pulsar.client.version>
         <reactor.version>3.4.3</reactor.version>
