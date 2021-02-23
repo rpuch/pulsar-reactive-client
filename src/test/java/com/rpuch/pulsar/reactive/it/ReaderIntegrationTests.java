@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -37,6 +36,8 @@ import static org.hamcrest.Matchers.notNullValue;
 public class ReaderIntegrationTests extends TestWithPulsar {
     private PulsarClient coreClient;
     private ReactivePulsarClient reactiveClient;
+
+    private final MessageConverter converter = new MessageConverter();
 
     private final String topic = UUID.randomUUID().toString();
 
@@ -78,13 +79,11 @@ public class ReaderIntegrationTests extends TestWithPulsar {
     }
 
     private byte[] intToBytes(int n) {
-        String str = Integer.toString(n);
-        return str.getBytes(UTF_8);
+        return converter.intToBytes(n);
     }
 
     private int intFromBytes(byte[] bytes) {
-        String str = new String(bytes, UTF_8);
-        return Integer.parseInt(str);
+        return converter.intFromBytes(bytes);
     }
 
     private List<Integer> listOfZeroToNine() {
@@ -121,7 +120,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
                 .startMessageId(MessageId.earliest)
                 .receive();
         List<Integer> resultInts = messages.map(Message::getValue)
-                .map(Integer::valueOf)
+                .map(converter::intFromString)
                 .take(10)
                 .toStream().collect(toList());
 
@@ -131,7 +130,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
     private void produceZeroToNineWithStringSchema() throws PulsarClientException {
         try (Producer<String> producer = coreClient.newProducer(StringSchema.utf8()).topic(topic).create()) {
             for (int i = 0; i < 10; i++) {
-                producer.send(Integer.toString(i));
+                producer.send(converter.intToString(i));
             }
         }
     }
@@ -269,12 +268,11 @@ public class ReaderIntegrationTests extends TestWithPulsar {
         Mono<Message<byte[]>> fifthMessage = reactiveClient.newReader()
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
-                .forOne(reader -> {
-                    return reader.readNext()
-                            .then(reader.seek(thirdMessageId))
-                            .then(reader.readNext())
-                            .then(reader.readNext());
-                });
+                .forOne(reader -> reader.readNext()
+                        .then(reader.seek(thirdMessageId))
+                        .then(reader.readNext())
+                        .then(reader.readNext())
+                );
 
         StepVerifier.create(fifthMessage)
                 .assertNext(message -> assertThat(intFromBytes(message.getData()), is(4)))
