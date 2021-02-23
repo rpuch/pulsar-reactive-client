@@ -18,6 +18,7 @@ import java.util.function.Function;
  *
  * @author Roman Puchkovskiy
  */
+@SuppressWarnings("DanglingJavadoc")
 public interface ReactiveProducerBuilder<T> extends Cloneable {
 
     <U> Mono<U> forOne(Function<? super ReactiveProducer<T>, ? extends Mono<U>> transformation);
