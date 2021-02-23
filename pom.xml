@@ -177,8 +177,8 @@
 
     <scm>
         <url>https://github.com/rpuch/pulsar-reactive-client</url>
-        <connection>git@github.com:rpuch/pulsar-reactive-client.git</connection>
-        <developerConnection>git@github.com:rpuch/pulsar-reactive-client.git</developerConnection>
+        <connection>scm:git@github.com:rpuch/pulsar-reactive-client.git</connection>
+        <developerConnection>scm:git@github.com:rpuch/pulsar-reactive-client.git</developerConnection>
     </scm>
 
     <licenses>
@@ -187,5 +187,12 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <name>Roman Puchkovskiy</name>
+            <email>roman.puchkovskiy@gmail.com</email>
+        </developer>
+    </developers>
 
 </project>
