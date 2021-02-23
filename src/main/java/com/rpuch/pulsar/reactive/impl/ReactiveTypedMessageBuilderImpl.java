@@ -21,7 +21,7 @@ public class ReactiveTypedMessageBuilderImpl<T> implements ReactiveTypedMessageB
 
     @Override
     public Mono<MessageId> send() {
-        throw new UnsupportedOperationException("Not yet");
+        return Mono.fromFuture(coreBuilder::sendAsync);
     }
 
     @Override

@@ -1,20 +1,25 @@
 package com.rpuch.pulsar.reactive.impl;
 
+import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.test.StepVerifier;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.rpuch.pulsar.reactive.utils.Futures.failedFuture;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Roman Puchkovskiy
@@ -26,6 +31,30 @@ class ReactiveTypedMessageBuilderImplTest {
 
     @Mock
     private TypedMessageBuilder<String> coreBuilder;
+
+    @Mock
+    private MessageId messageId;
+
+    @Test
+    void sendUsesSendAsync() {
+        when(coreBuilder.sendAsync()).thenReturn(completedFuture(messageId));
+
+        reactiveBuilder.send()
+                .as(StepVerifier::create)
+                .expectNext(messageId)
+                .verifyComplete();
+    }
+
+    @Test
+    void sendRelaysErrorFromFutureFailure() {
+        RuntimeException exception = new RuntimeException("Oops");
+        when(coreBuilder.sendAsync()).thenReturn(failedFuture(exception));
+
+        reactiveBuilder.send()
+                .as(StepVerifier::create)
+                .expectErrorSatisfies(ex -> assertThat(ex, sameInstance(exception)))
+                .verify();
+    }
 
     @Test
     void setsKeyOnCoreBuilder() {
