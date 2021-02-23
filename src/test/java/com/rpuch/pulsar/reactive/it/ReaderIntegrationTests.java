@@ -25,7 +25,6 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -35,7 +34,7 @@ import static org.hamcrest.Matchers.notNullValue;
 /**
  * @author Roman Puchkovskiy
  */
-public class IntegrationTests extends TestWithPulsar {
+public class ReaderIntegrationTests extends TestWithPulsar {
     private PulsarClient coreClient;
     private ReactivePulsarClient reactiveClient;
 
@@ -51,7 +50,7 @@ public class IntegrationTests extends TestWithPulsar {
 
     @AfterEach
     void cleanUp() throws Exception {
-        coreClient.close();
+        reactiveClient.close();
     }
 
     @Test
@@ -280,19 +279,5 @@ public class IntegrationTests extends TestWithPulsar {
         StepVerifier.create(fifthMessage)
                 .assertNext(message -> assertThat(intFromBytes(message.getData()), is(4)))
                 .verifyComplete();
-    }
-
-    @Test
-    void returnsPartitionsViaGetPartitionsForTopic() throws Exception {
-        triggerTopicCreation();
-
-        reactiveClient.getPartitionsForTopic(topic)
-                .as(StepVerifier::create)
-                .expectNext(singletonList(topic))
-                .verifyComplete();
-    }
-
-    private void triggerTopicCreation() throws PulsarClientException {
-        produceZeroToNineWithoutSchema();
     }
 }
