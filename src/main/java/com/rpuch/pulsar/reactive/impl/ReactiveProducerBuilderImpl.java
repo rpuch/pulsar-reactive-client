@@ -7,12 +7,16 @@ import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.MessageRouter;
 import org.apache.pulsar.client.api.MessageRoutingMode;
+import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
 import org.apache.pulsar.client.api.interceptor.ProducerInterceptor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * @author Roman Puchkovskiy
@@ -25,8 +29,25 @@ public class ReactiveProducerBuilderImpl<T> implements ReactiveProducerBuilder<T
     }
 
     @Override
-    public ReactiveProducer<T> create() {
-        throw new UnsupportedOperationException("Not yet");
+    public <U> Mono<U> forOne(Function<? super ReactiveProducer<T>, ? extends Mono<U>> transformation) {
+        return Mono.usingWhen(
+                createCoreProducer(),
+                coreReader -> transformation.apply(new ReactiveProducerImpl<>(coreReader)),
+                coreReader -> Mono.fromFuture(coreReader::closeAsync)
+        );
+    }
+
+    @Override
+    public <U> Flux<U> forMany(Function<? super ReactiveProducer<T>, ? extends Flux<U>> transformation) {
+        return Flux.usingWhen(
+                createCoreProducer(),
+                coreReader -> transformation.apply(new ReactiveProducerImpl<>(coreReader)),
+                coreReader -> Mono.fromFuture(coreReader::closeAsync)
+        );
+    }
+
+    private Mono<Producer<T>> createCoreProducer() {
+        return Mono.fromFuture(coreBuilder::createAsync);
     }
 
     @Override

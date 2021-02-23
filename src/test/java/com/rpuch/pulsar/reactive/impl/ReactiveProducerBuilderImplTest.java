@@ -4,6 +4,7 @@ import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.MessageRouter;
 import org.apache.pulsar.client.api.MessageRoutingMode;
+import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.interceptor.ProducerInterceptor;
 import org.junit.jupiter.api.Test;
@@ -11,17 +12,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.apache.pulsar.client.api.CompressionType.NONE;
 import static org.apache.pulsar.client.api.ProducerCryptoFailureAction.FAIL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Roman Puchkovskiy
@@ -33,6 +41,95 @@ class ReactiveProducerBuilderImplTest {
 
     @Mock
     private ProducerBuilder<String> coreBuilder;
+
+    @Mock
+    private Producer<String> coreProducer;
+
+    @Test
+    void forOneReturnsResullOfInternalTransformation() {
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreProducer));
+        when(coreProducer.closeAsync()).thenReturn(completedFuture(null));
+
+        reactiveBuilder.forOne(reader -> Mono.just("a"))
+                .as(StepVerifier::create)
+                .expectNext("a")
+                .verifyComplete();
+    }
+
+    @Test
+    void closesCoreReaderAfterASubscriptionToMonoReturnedByForOneCompletesNormally() {
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreProducer));
+        when(coreProducer.closeAsync()).thenReturn(completedFuture(null));
+
+        reactiveBuilder.forOne(reader -> Mono.just("a")).block();
+
+        verify(coreProducer).closeAsync();
+    }
+
+    @Test
+    void closesCoreReaderAfterASubscriptionToMonoReturnedByForOneCompletesWithError() {
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreProducer));
+        when(coreProducer.closeAsync()).thenReturn(completedFuture(null));
+
+        assertThrows(RuntimeException.class,
+                () -> reactiveBuilder.forOne(reader -> Mono.error(new RuntimeException("Oops"))).block());
+
+        verify(coreProducer).closeAsync();
+    }
+
+    @Test
+    void closesCoreReaderAfterASubscriptionToMonoReturnedByForOneIsCancelled() {
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreProducer));
+        when(coreProducer.closeAsync()).thenReturn(completedFuture(null));
+
+        Disposable disposable = reactiveBuilder.forOne(reader -> Mono.just("a")).subscribe();
+        disposable.dispose();
+
+        verify(coreProducer).closeAsync();
+    }
+
+    @Test
+    void forManyReturnsResullOfInternalTransformation() {
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreProducer));
+        when(coreProducer.closeAsync()).thenReturn(completedFuture(null));
+
+        reactiveBuilder.forMany(reader -> Flux.just("a"))
+                .as(StepVerifier::create)
+                .expectNext("a")
+                .verifyComplete();
+    }
+
+    @Test
+    void closesCoreReaderAfterASubscriptionToFluxReturnedByForManyCompletesNormally() {
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreProducer));
+        when(coreProducer.closeAsync()).thenReturn(completedFuture(null));
+
+        reactiveBuilder.forMany(reader -> Flux.just("a")).blockLast();
+
+        verify(coreProducer).closeAsync();
+    }
+
+    @Test
+    void closesCoreReaderAfterASubscriptionToFluxReturnedByForManyCompletesWithError() {
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreProducer));
+        when(coreProducer.closeAsync()).thenReturn(completedFuture(null));
+
+        assertThrows(RuntimeException.class,
+                () -> reactiveBuilder.forMany(reader -> Flux.error(new RuntimeException("Oops"))).blockLast());
+
+        verify(coreProducer).closeAsync();
+    }
+
+    @Test
+    void closesCoreReaderAfterASubscriptionToFluxReturnedByForManyIsCancelled() {
+        when(coreBuilder.createAsync()).thenReturn(completedFuture(coreProducer));
+        when(coreProducer.closeAsync()).thenReturn(completedFuture(null));
+
+        Disposable disposable = reactiveBuilder.forMany(reader -> Flux.just("a")).subscribe();
+        disposable.dispose();
+
+        verify(coreProducer).closeAsync();
+    }
 
     @Test
     void invokesLoadConfOnCoreBuilder() {

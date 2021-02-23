@@ -7,9 +7,12 @@ import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.MessageRouter;
 import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.ProducerCryptoFailureAction;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  *
@@ -17,7 +20,9 @@ import java.util.concurrent.TimeUnit;
  */
 public interface ReactiveProducerBuilder<T> extends Cloneable {
 
-    ReactiveProducer<T> create();
+    <U> Mono<U> forOne(Function<? super ReactiveProducer<T>, ? extends Mono<U>> transformation);
+
+    <U> Flux<U> forMany(Function<? super ReactiveProducer<T>, ? extends Flux<U>> transformation);
 
     /**
      * Load the configuration from provided <tt>config</tt> map.
@@ -141,7 +146,7 @@ public interface ReactiveProducerBuilder<T> extends Cloneable {
      * <p>Default routing mode is to round-robin across the available partitions.
      *
      * <p>This logic is applied when the application is not setting a key on a
-     * particular message. If the key is set with {@link MessageBuilder#setKey(String)},
+     * particular message. If the key is set with {@link ReactiveTypedMessageBuilder#key(String)},
      * then the hash of the key will be used to select a partition for the message.
      *
      * @param messageRoutingMode
@@ -191,6 +196,7 @@ public interface ReactiveProducerBuilder<T> extends Cloneable {
      * Set a custom message routing policy by passing an implementation of MessageRouter.
      *
      * @param messageRouter
+     *          the selected message router
      * @return the producer builder instance
      */
     ReactiveProducerBuilder<T> messageRouter(MessageRouter messageRouter);

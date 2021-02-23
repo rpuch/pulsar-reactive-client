@@ -32,6 +32,34 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
         return this;
     }
 
+
+    @Override
+    public Flux<Message<T>> receive() {
+        return forMany(ReactiveReader::receive);
+    }
+
+    @Override
+    public <U> Mono<U> forOne(Function<? super ReactiveReader<T>, ? extends Mono<U>> transformation) {
+        return Mono.usingWhen(
+                createCoreReader(),
+                coreReader -> transformation.apply(new ReactiveReaderImpl<>(coreReader)),
+                coreReader -> Mono.fromFuture(coreReader::closeAsync)
+        );
+    }
+
+    @Override
+    public <U> Flux<U> forMany(Function<? super ReactiveReader<T>, ? extends Flux<U>> transformation) {
+        return Flux.usingWhen(
+                createCoreReader(),
+                coreReader -> transformation.apply(new ReactiveReaderImpl<>(coreReader)),
+                coreReader -> Mono.fromFuture(coreReader::closeAsync)
+        );
+    }
+
+    private Mono<Reader<T>> createCoreReader() {
+        return Mono.fromFuture(coreBuilder::createAsync);
+    }
+
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public ReactiveReaderBuilder<T> clone() {
@@ -102,32 +130,5 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
     public ReactiveReaderBuilder<T> keyHashRange(Range... ranges) {
         coreBuilder.keyHashRange(ranges);
         return this;
-    }
-
-    @Override
-    public Flux<Message<T>> receive() {
-        return forMany(ReactiveReader::receive);
-    }
-
-    @Override
-    public <U> Mono<U> forOne(Function<? super ReactiveReader<T>, ? extends Mono<U>> transformation) {
-        return Mono.usingWhen(
-                createCoreReader(),
-                coreReader -> transformation.apply(new ReactiveReaderImpl<>(coreReader)),
-                coreReader -> Mono.fromFuture(coreReader::closeAsync)
-        );
-    }
-
-    @Override
-    public <U> Flux<U> forMany(Function<? super ReactiveReader<T>, ? extends Flux<U>> transformation) {
-        return Flux.usingWhen(
-                createCoreReader(),
-                coreReader -> transformation.apply(new ReactiveReaderImpl<>(coreReader)),
-                coreReader -> Mono.fromFuture(coreReader::closeAsync)
-        );
-    }
-
-    private Mono<Reader<T>> createCoreReader() {
-        return Mono.fromFuture(coreBuilder::createAsync);
     }
 }
