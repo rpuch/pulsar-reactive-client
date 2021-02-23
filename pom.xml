@@ -3,13 +3,13 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rpuch.pulsar-reactive-client</groupId>
+    <groupId>com.rpuch.pulsar-reactive-clients</groupId>
     <artifactId>pulsar-client-reactor</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <name>Reactive Pulsar client (with Reactor)</name>
     <description>
-        Allows to use Apache Pulsar with Reactor Core (an implementation of Reactive Streams specification)
+        A reactive Apache Pulsar client using Reactor Core (an implementation of Reactive Streams specification)
     </description>
 
     <properties>
