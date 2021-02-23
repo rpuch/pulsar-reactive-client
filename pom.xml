@@ -181,4 +181,11 @@
         <developerConnection>git@github.com:rpuch/pulsar-reactive-client.git</developerConnection>
     </scm>
 
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
 </project>
