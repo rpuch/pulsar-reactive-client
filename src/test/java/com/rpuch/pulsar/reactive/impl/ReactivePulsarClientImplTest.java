@@ -3,7 +3,7 @@ package com.rpuch.pulsar.reactive.impl;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.ReaderBuilder;
-import org.apache.pulsar.client.impl.schema.StringSchema;
+import org.apache.pulsar.client.api.Schema;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -51,7 +51,7 @@ class ReactivePulsarClientImplTest {
 
     @Test
     void newProducerWithSchemaReturnsABuilderCooperatingWithCoreClient() {
-        StringSchema schema = StringSchema.utf8();
+        Schema<String> schema = Schema.STRING;
 
         when(coreClient.newProducer(schema)).thenReturn(stringProducerBuilder);
 
@@ -71,7 +71,7 @@ class ReactivePulsarClientImplTest {
 
     @Test
     void newReaderWithSchemaReturnsABuilderCooperatingWithCoreClient() {
-        StringSchema schema = StringSchema.utf8();
+        Schema<String> schema = Schema.STRING;
 
         when(coreClient.newReader(schema)).thenReturn(stringReaderBuilder);
 

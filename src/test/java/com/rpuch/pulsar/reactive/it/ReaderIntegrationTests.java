@@ -7,7 +7,7 @@ import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
-import org.apache.pulsar.client.impl.schema.StringSchema;
+import org.apache.pulsar.client.api.Schema;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -115,7 +115,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
     void receiveReadsSuccessfullyWithSchema() throws Exception {
         produceZeroToNineWithStringSchema();
 
-        Flux<Message<String>> messages = reactiveClient.newReader(StringSchema.utf8())
+        Flux<Message<String>> messages = reactiveClient.newReader(Schema.STRING)
                 .topic(topic)
                 .startMessageId(MessageId.earliest)
                 .receive();
@@ -128,7 +128,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
     }
 
     private void produceZeroToNineWithStringSchema() throws PulsarClientException {
-        try (Producer<String> producer = coreClient.newProducer(StringSchema.utf8()).topic(topic).create()) {
+        try (Producer<String> producer = coreClient.newProducer(Schema.STRING).topic(topic).create()) {
             for (int i = 0; i < 10; i++) {
                 producer.send(converter.intToString(i));
             }

@@ -3,6 +3,7 @@ package com.rpuch.pulsar.reactive.impl;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerStats;
+import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 import org.apache.pulsar.client.impl.schema.StringSchema;
 import org.junit.jupiter.api.Test;
@@ -99,7 +100,7 @@ class ReactiveProducerImplTest {
     void newMessageWithScheaReturnsABuilderCooperatingWithCoreProducer() {
         when(coreProducer.newMessage(any(StringSchema.class))).thenReturn(messageBuilder);
 
-        assertThat(reactiveProducer.newMessage(StringSchema.utf8()), notNullValue());
+        assertThat(reactiveProducer.newMessage(Schema.STRING), notNullValue());
     }
 
     @Test

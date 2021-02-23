@@ -7,7 +7,6 @@ import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Reader;
 import org.apache.pulsar.client.api.Schema;
-import org.apache.pulsar.client.impl.schema.StringSchema;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,7 +94,7 @@ public class ProducerIntegrationTests extends TestWithPulsar {
 
     @Test
     void producerSendPublishesSuccessfullyWithSchema() throws Exception {
-        reactiveClient.newProducer(StringSchema.utf8())
+        reactiveClient.newProducer(Schema.STRING)
                 .topic(topic)
                 .forOne(producer -> Flux.range(0, 10)
                         .map(converter::intToString)
