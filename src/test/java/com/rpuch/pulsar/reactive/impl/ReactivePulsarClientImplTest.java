@@ -1,6 +1,9 @@
 package com.rpuch.pulsar.reactive.impl;
 
+import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.ReaderBuilder;
+import org.apache.pulsar.client.impl.schema.StringSchema;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,6 +14,8 @@ import reactor.test.StepVerifier;
 import java.util.Arrays;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +30,55 @@ class ReactivePulsarClientImplTest {
 
     @Mock
     private PulsarClient coreClient;
+
+    @Mock
+    private ProducerBuilder<byte[]> bytesProducerBuilder;
+    @Mock
+    private ProducerBuilder<String> stringProducerBuilder;
+    @Mock
+    private ReaderBuilder<byte[]> bytesReaderBuilder;
+    @Mock
+    private ReaderBuilder<String> stringReaderBuilder;
+
+    @Test
+    void newProducerReturnsABuilderCooperatingWithCoreClient() {
+        when(coreClient.newProducer()).thenReturn(bytesProducerBuilder);
+
+        assertThat(reactiveClient.newProducer(), notNullValue());
+
+        verify(coreClient).newProducer();
+    }
+
+    @Test
+    void newProducerWithSchemaReturnsABuilderCooperatingWithCoreClient() {
+        StringSchema schema = StringSchema.utf8();
+
+        when(coreClient.newProducer(schema)).thenReturn(stringProducerBuilder);
+
+        assertThat(reactiveClient.newProducer(schema), notNullValue());
+
+        verify(coreClient).newProducer(schema);
+    }
+
+    @Test
+    void newReaderReturnsABuilderCooperatingWithCoreClient() {
+        when(coreClient.newReader()).thenReturn(bytesReaderBuilder);
+
+        assertThat(reactiveClient.newReader(), notNullValue());
+
+        verify(coreClient).newReader();
+    }
+
+    @Test
+    void newReaderWithSchemaReturnsABuilderCooperatingWithCoreClient() {
+        StringSchema schema = StringSchema.utf8();
+
+        when(coreClient.newReader(schema)).thenReturn(stringReaderBuilder);
+
+        assertThat(reactiveClient.newReader(schema), notNullValue());
+
+        verify(coreClient).newReader(schema);
+    }
 
     @Test
     void closesCoreClientOnClose() throws Exception {

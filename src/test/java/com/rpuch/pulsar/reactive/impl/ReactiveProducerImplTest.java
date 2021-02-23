@@ -91,6 +91,8 @@ class ReactiveProducerImplTest {
         when(coreProducer.newMessage()).thenReturn(messageBuilder);
 
         assertThat(reactiveProducer.newMessage(), notNullValue());
+
+        verify(coreProducer).newMessage();
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.rpuch.pulsar.reactive.impl;
 
+import com.rpuch.pulsar.reactive.api.ReactiveProducerBuilder;
 import com.rpuch.pulsar.reactive.api.ReactivePulsarClient;
 import com.rpuch.pulsar.reactive.api.ReactiveReaderBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
@@ -17,6 +18,16 @@ public class ReactivePulsarClientImpl implements ReactivePulsarClient {
 
     public ReactivePulsarClientImpl(PulsarClient coreClient) {
         this.coreClient = coreClient;
+    }
+
+    @Override
+    public ReactiveProducerBuilder<byte[]> newProducer() {
+        return new ReactiveProducerBuilderImpl<>(coreClient.newProducer());
+    }
+
+    @Override
+    public <T> ReactiveProducerBuilder<T> newProducer(Schema<T> schema) {
+        return new ReactiveProducerBuilderImpl<>(coreClient.newProducer(schema));
     }
 
     @Override
