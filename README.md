@@ -41,11 +41,12 @@ MessageId messageId = client.newProducer()
         .block();
 ```
 
-### Receive an infinite stream of messages ###
+### Receive an infinite stream of messages starting at the very beginning of a topic ###
 
 ```java
 Flux<Message<byte[]>> messages = client.newReader()
         .topic("my-topic")
+        .startMessageId(MessageId.earliest)
         .messages();
 messages.map(msg -> new String(msg.getData())).subscribe(System.out::println);
 ```
