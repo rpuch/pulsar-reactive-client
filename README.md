@@ -1,3 +1,4 @@
+[![Maven Central](https://img.shields.io/maven-central/v/com.rpuch.pulsar-reactive-client/pulsar-client-reactor.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.rpuch.pulsar-reactive-client%22%20AND%20a:%22pulsar-client-reactor%22)
 [![Build Status](https://travis-ci.org/rpuch/pulsar-reactive-client.svg?branch=master)](https://travis-ci.org/rpuch/pulsar-reactive-client)
 
 # Pulsar Reactive Client #
@@ -6,7 +7,23 @@ This is a wrapper around asyncronous facilities provided by the official
 [Apache Pulsar Java Client](https://github.com/apache/pulsar/tree/master/pulsar-client) using
 [Reactor Core](https://github.com/reactor/reactor-core) interfaces.
 
-## How to use ###
+## How to use ##
+
+### Maven ###
+
+```xml
+<dependency>
+  <groupId>com.rpuch.pulsar-reactive-client</groupId>
+  <artifactId>pulsar-client-reactor</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+### Gradle ###
+
+```
+implementation 'com.rpuch.pulsar-reactive-client:pulsar-client-reactor:1.0.0'
+```
 
 ### Create a reactive client ###
 
