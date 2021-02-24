@@ -55,6 +55,7 @@ messages.map(msg -> new String(msg.getData())).subscribe(System.out::println);
 ## Missing features, coming soon ##
 
  * Support for reactive `Consumer` interface variation (with ability to acknowledge messages on accept)
+ * Support for fast message publishing, batches and chunked messages
  * Support for transactions
  * Addition of support for `RxJava` and alternatives Reactive Streams implementations (like Mutiny)
  is under consideration
