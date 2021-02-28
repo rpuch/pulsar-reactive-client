@@ -71,7 +71,7 @@ public interface ReactiveConsumer<T> {
      *
      * <p>When a message is "negatively acked" it will be marked for redelivery after
      * some fixed delay. The delay is configurable when constructing the consumer
-     * with {@link ConsumerBuilder#negativeAckRedeliveryDelay(long, TimeUnit)}.
+     * with {@link ReactiveConsumerBuilder#negativeAckRedeliveryDelay(long, TimeUnit)}.
      *
      * <p>This call is not blocking.
      *
@@ -101,7 +101,7 @@ public interface ReactiveConsumer<T> {
      *
      * <p>When a message is "negatively acked" it will be marked for redelivery after
      * some fixed delay. The delay is configurable when constructing the consumer
-     * with {@link ConsumerBuilder#negativeAckRedeliveryDelay(long, TimeUnit)}.
+     * with {@link ReactiveConsumerBuilder#negativeAckRedeliveryDelay(long, TimeUnit)}.
      *
      * <p>This call is not blocking.
      *
@@ -121,7 +121,7 @@ public interface ReactiveConsumer<T> {
      *
      * <p>When messages is "negatively acked" it will be marked for redelivery after
      * some fixed delay. The delay is configurable when constructing the consumer
-     * with {@link ConsumerBuilder#negativeAckRedeliveryDelay(long, TimeUnit)}.
+     * with {@link ReactiveConsumerBuilder#negativeAckRedeliveryDelay(long, TimeUnit)}.
      *
      * <p>This call is not blocking.
      *
