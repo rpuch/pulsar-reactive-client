@@ -77,7 +77,7 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
     }
 
     private Mono<Reader<T>> createCoreReader() {
-        return Reactor.FromFutureWithCancellationPropagation(coreBuilder::createAsync);
+        return Reactor.fromFutureWithCancellationPropagation(coreBuilder::createAsync);
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")

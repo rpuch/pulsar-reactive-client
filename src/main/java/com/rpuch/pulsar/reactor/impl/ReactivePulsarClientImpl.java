@@ -69,7 +69,7 @@ public class ReactivePulsarClientImpl implements ReactivePulsarClient {
 
     @Override
     public Mono<List<String>> getPartitionsForTopic(String topic) {
-        return Reactor.FromFutureWithCancellationPropagation(() -> coreClient.getPartitionsForTopic(topic));
+        return Reactor.fromFutureWithCancellationPropagation(() -> coreClient.getPartitionsForTopic(topic));
     }
 
     @Override

@@ -25,7 +25,7 @@ import java.util.function.Supplier;
  */
 public class ChainStream {
     public static <T> Flux<T> infiniteChain(Supplier<CompletableFuture<T>> futureProvider) {
-        return Reactor.FromFutureWithCancellationPropagation(futureProvider).repeat();
+        return Reactor.fromFutureWithCancellationPropagation(futureProvider).repeat();
     }
 
     private ChainStream() {

@@ -46,7 +46,7 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
 
     @Override
     public Mono<Message<T>> readNext() {
-        return Reactor.FromFutureWithCancellationPropagation(reader::readNextAsync);
+        return Reactor.fromFutureWithCancellationPropagation(reader::readNextAsync);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
 
     @Override
     public Mono<Boolean> hasMessageAvailable() {
-        return Reactor.FromFutureWithCancellationPropagation(reader::hasMessageAvailableAsync);
+        return Reactor.fromFutureWithCancellationPropagation(reader::hasMessageAvailableAsync);
     }
 
     @Override
@@ -66,11 +66,11 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
 
     @Override
     public Mono<Void> seek(MessageId messageId) {
-        return Reactor.FromFutureWithCancellationPropagation(() -> reader.seekAsync(messageId));
+        return Reactor.fromFutureWithCancellationPropagation(() -> reader.seekAsync(messageId));
     }
 
     @Override
     public Mono<Void> seek(long timestamp) {
-        return Reactor.FromFutureWithCancellationPropagation(() -> reader.seekAsync(timestamp));
+        return Reactor.fromFutureWithCancellationPropagation(() -> reader.seekAsync(timestamp));
     }
 }

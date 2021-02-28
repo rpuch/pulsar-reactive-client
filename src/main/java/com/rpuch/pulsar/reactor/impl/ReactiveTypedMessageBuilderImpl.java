@@ -37,7 +37,7 @@ public class ReactiveTypedMessageBuilderImpl<T> implements ReactiveTypedMessageB
 
     @Override
     public Mono<MessageId> send() {
-        return Reactor.FromFutureWithCancellationPropagation(coreBuilder::sendAsync);
+        return Reactor.fromFutureWithCancellationPropagation(coreBuilder::sendAsync);
     }
 
     @Override

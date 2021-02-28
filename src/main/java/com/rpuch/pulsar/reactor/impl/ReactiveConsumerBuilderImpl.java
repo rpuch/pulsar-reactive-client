@@ -75,7 +75,7 @@ public class ReactiveConsumerBuilderImpl<T> implements ReactiveConsumerBuilder<T
     }
 
     private Mono<Consumer<T>> createCoreConsumer() {
-        return Reactor.FromFutureWithCancellationPropagation(coreBuilder::subscribeAsync);
+        return Reactor.fromFutureWithCancellationPropagation(coreBuilder::subscribeAsync);
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")

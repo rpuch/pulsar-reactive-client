@@ -67,7 +67,7 @@ public class ReactiveProducerBuilderImpl<T> implements ReactiveProducerBuilder<T
     }
 
     private Mono<Producer<T>> createCoreProducer() {
-        return Reactor.FromFutureWithCancellationPropagation(coreBuilder::createAsync);
+        return Reactor.fromFutureWithCancellationPropagation(coreBuilder::createAsync);
     }
 
     @Override
