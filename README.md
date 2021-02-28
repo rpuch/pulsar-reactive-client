@@ -33,7 +33,7 @@ PulsarClient coreClient = PulsarClient.builder().serviceUrl(pulsarBrokerUrl).bui
 ReactivePulsarClient client = ReactivePulsarClient.from(coreClient);
 ```
 
-### Send a message ###
+### Produce a message ###
 
 ```java
 MessageId messageId = client.newProducer()
