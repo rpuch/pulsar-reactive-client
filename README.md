@@ -16,14 +16,14 @@ This is a wrapper around asyncronous facilities provided by the official
 <dependency>
   <groupId>com.rpuch.pulsar-reactive-client</groupId>
   <artifactId>pulsar-client-reactor</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
 ### Gradle ###
 
 ```
-implementation 'com.rpuch.pulsar-reactive-client:pulsar-client-reactor:1.0.0'
+implementation 'com.rpuch.pulsar-reactive-client:pulsar-client-reactor:1.1.0'
 ```
 
 ### Create a reactive client ###
