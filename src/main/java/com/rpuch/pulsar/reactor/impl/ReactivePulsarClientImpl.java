@@ -19,6 +19,7 @@ import com.rpuch.pulsar.reactor.api.ReactiveConsumerBuilder;
 import com.rpuch.pulsar.reactor.api.ReactiveProducerBuilder;
 import com.rpuch.pulsar.reactor.api.ReactivePulsarClient;
 import com.rpuch.pulsar.reactor.api.ReactiveReaderBuilder;
+import com.rpuch.pulsar.reactor.reactor.Reactor;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
@@ -68,7 +69,7 @@ public class ReactivePulsarClientImpl implements ReactivePulsarClient {
 
     @Override
     public Mono<List<String>> getPartitionsForTopic(String topic) {
-        return Mono.fromFuture(() -> coreClient.getPartitionsForTopic(topic));
+        return Reactor.monoFromFuture(() -> coreClient.getPartitionsForTopic(topic));
     }
 
     @Override
@@ -78,7 +79,7 @@ public class ReactivePulsarClientImpl implements ReactivePulsarClient {
 
     @Override
     public Mono<Void> closeReactively() {
-        return Mono.fromFuture(coreClient::closeAsync);
+        return Reactor.monoFromFuture(coreClient::closeAsync);
     }
 
     @Override

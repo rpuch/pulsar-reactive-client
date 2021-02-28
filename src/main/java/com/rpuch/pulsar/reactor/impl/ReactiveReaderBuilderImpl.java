@@ -17,6 +17,7 @@ package com.rpuch.pulsar.reactor.impl;
 
 import com.rpuch.pulsar.reactor.api.ReactiveReader;
 import com.rpuch.pulsar.reactor.api.ReactiveReaderBuilder;
+import com.rpuch.pulsar.reactor.reactor.Reactor;
 import org.apache.pulsar.client.api.ConsumerCryptoFailureAction;
 import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.Message;
@@ -58,7 +59,7 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
         return Mono.usingWhen(
                 createCoreReader(),
                 coreReader -> transformation.apply(new ReactiveReaderImpl<>(coreReader)),
-                coreReader -> Mono.fromFuture(coreReader::closeAsync)
+                coreReader -> Reactor.monoFromFuture(coreReader::closeAsync)
         );
     }
 
@@ -67,12 +68,12 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
         return Flux.usingWhen(
                 createCoreReader(),
                 coreReader -> transformation.apply(new ReactiveReaderImpl<>(coreReader)),
-                coreReader -> Mono.fromFuture(coreReader::closeAsync)
+                coreReader -> Reactor.monoFromFuture(coreReader::closeAsync)
         );
     }
 
     private Mono<Reader<T>> createCoreReader() {
-        return Mono.fromFuture(coreBuilder::createAsync);
+        return Reactor.monoFromFuture(coreBuilder::createAsync);
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")

@@ -16,6 +16,7 @@
 package com.rpuch.pulsar.reactor.impl;
 
 import com.rpuch.pulsar.reactor.api.ReactiveTypedMessageBuilder;
+import com.rpuch.pulsar.reactor.reactor.Reactor;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 import reactor.core.publisher.Mono;
@@ -36,7 +37,7 @@ public class ReactiveTypedMessageBuilderImpl<T> implements ReactiveTypedMessageB
 
     @Override
     public Mono<MessageId> send() {
-        return Mono.fromFuture(coreBuilder::sendAsync);
+        return Reactor.monoFromFuture(coreBuilder::sendAsync);
     }
 
     @Override

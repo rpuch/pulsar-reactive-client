@@ -17,6 +17,7 @@ package com.rpuch.pulsar.reactor.impl;
 
 import com.rpuch.pulsar.reactor.api.ReactiveConsumer;
 import com.rpuch.pulsar.reactor.reactor.ChainStream;
+import com.rpuch.pulsar.reactor.reactor.Reactor;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.ConsumerStats;
 import org.apache.pulsar.client.api.Message;
@@ -50,7 +51,7 @@ public class ReactiveConsumerImpl<T> implements ReactiveConsumer<T> {
 
     @Override
     public Mono<Void> unsubscribe() {
-        return Mono.fromFuture(coreConsumer::unsubscribeAsync);
+        return Reactor.monoFromFuture(coreConsumer::unsubscribeAsync);
     }
 
     @Override
@@ -60,32 +61,32 @@ public class ReactiveConsumerImpl<T> implements ReactiveConsumer<T> {
 
     @Override
     public Mono<Message<T>> receive() {
-        return Mono.fromFuture(coreConsumer::receiveAsync);
+        return Reactor.monoFromFuture(coreConsumer::receiveAsync);
     }
 
     @Override
     public Mono<Messages<T>> batchReceive() {
-        return Mono.fromFuture(coreConsumer::batchReceiveAsync);
+        return Reactor.monoFromFuture(coreConsumer::batchReceiveAsync);
     }
 
     @Override
     public Mono<Void> acknowledge(Message<?> message) {
-        return Mono.fromFuture(() -> coreConsumer.acknowledgeAsync(message));
+        return Reactor.monoFromFuture(() -> coreConsumer.acknowledgeAsync(message));
     }
 
     @Override
     public Mono<Void> acknowledge(MessageId messageId) {
-        return Mono.fromFuture(() -> coreConsumer.acknowledgeAsync(messageId));
+        return Reactor.monoFromFuture(() -> coreConsumer.acknowledgeAsync(messageId));
     }
 
     @Override
     public Mono<Void> acknowledge(Messages<?> messages) {
-        return Mono.fromFuture(() -> coreConsumer.acknowledgeAsync(messages));
+        return Reactor.monoFromFuture(() -> coreConsumer.acknowledgeAsync(messages));
     }
 
     @Override
     public Mono<Void> acknowledge(List<MessageId> messageIdList) {
-        return Mono.fromFuture(() -> coreConsumer.acknowledgeAsync(messageIdList));
+        return Reactor.monoFromFuture(() -> coreConsumer.acknowledgeAsync(messageIdList));
     }
 
     @Override
@@ -105,27 +106,27 @@ public class ReactiveConsumerImpl<T> implements ReactiveConsumer<T> {
 
     @Override
     public Mono<Void> reconsumeLater(Message<?> message, long delayTime, TimeUnit unit) {
-        return Mono.fromFuture(() -> coreConsumer.reconsumeLaterAsync(message, delayTime, unit));
+        return Reactor.monoFromFuture(() -> coreConsumer.reconsumeLaterAsync(message, delayTime, unit));
     }
 
     @Override
     public Mono<Void> reconsumeLater(Messages<?> messages, long delayTime, TimeUnit unit) {
-        return Mono.fromFuture(() -> coreConsumer.reconsumeLaterAsync(messages, delayTime, unit));
+        return Reactor.monoFromFuture(() -> coreConsumer.reconsumeLaterAsync(messages, delayTime, unit));
     }
 
     @Override
     public Mono<Void> acknowledgeCumulative(Message<?> message) {
-        return Mono.fromFuture(() -> coreConsumer.acknowledgeCumulativeAsync(message));
+        return Reactor.monoFromFuture(() -> coreConsumer.acknowledgeCumulativeAsync(message));
     }
 
     @Override
     public Mono<Void> acknowledgeCumulative(MessageId messageId) {
-        return Mono.fromFuture(() -> coreConsumer.acknowledgeCumulativeAsync(messageId));
+        return Reactor.monoFromFuture(() -> coreConsumer.acknowledgeCumulativeAsync(messageId));
     }
 
     @Override
     public Mono<Void> reconsumeLaterCumulative(Message<?> message, long delayTime, TimeUnit unit) {
-        return Mono.fromFuture(() -> coreConsumer.reconsumeLaterCumulativeAsync(message, delayTime, unit));
+        return Reactor.monoFromFuture(() -> coreConsumer.reconsumeLaterCumulativeAsync(message, delayTime, unit));
     }
 
     @Override
@@ -145,17 +146,17 @@ public class ReactiveConsumerImpl<T> implements ReactiveConsumer<T> {
 
     @Override
     public Mono<Void> seek(MessageId messageId) {
-        return Mono.fromFuture(() -> coreConsumer.seekAsync(messageId));
+        return Reactor.monoFromFuture(() -> coreConsumer.seekAsync(messageId));
     }
 
     @Override
     public Mono<Void> seek(long timestamp) {
-        return Mono.fromFuture(() -> coreConsumer.seekAsync(timestamp));
+        return Reactor.monoFromFuture(() -> coreConsumer.seekAsync(timestamp));
     }
 
     @Override
     public Mono<MessageId> getLastMessageId() {
-        return Mono.fromFuture(coreConsumer.getLastMessageIdAsync());
+        return Reactor.monoFromFuture(coreConsumer::getLastMessageIdAsync);
     }
 
     @Override

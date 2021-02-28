@@ -17,6 +17,7 @@ package com.rpuch.pulsar.reactor.impl;
 
 import com.rpuch.pulsar.reactor.api.ReactiveProducer;
 import com.rpuch.pulsar.reactor.api.ReactiveProducerBuilder;
+import com.rpuch.pulsar.reactor.reactor.Reactor;
 import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.CryptoKeyReader;
 import org.apache.pulsar.client.api.HashingScheme;
@@ -48,7 +49,7 @@ public class ReactiveProducerBuilderImpl<T> implements ReactiveProducerBuilder<T
         return Mono.usingWhen(
                 createCoreProducer(),
                 coreReader -> transformation.apply(new ReactiveProducerImpl<>(coreReader)),
-                coreReader -> Mono.fromFuture(coreReader::closeAsync)
+                coreReader -> Reactor.monoFromFuture(coreReader::closeAsync)
         );
     }
 
@@ -57,12 +58,12 @@ public class ReactiveProducerBuilderImpl<T> implements ReactiveProducerBuilder<T
         return Flux.usingWhen(
                 createCoreProducer(),
                 coreReader -> transformation.apply(new ReactiveProducerImpl<>(coreReader)),
-                coreReader -> Mono.fromFuture(coreReader::closeAsync)
+                coreReader -> Reactor.monoFromFuture(coreReader::closeAsync)
         );
     }
 
     private Mono<Producer<T>> createCoreProducer() {
-        return Mono.fromFuture(coreBuilder::createAsync);
+        return Reactor.monoFromFuture(coreBuilder::createAsync);
     }
 
     @Override

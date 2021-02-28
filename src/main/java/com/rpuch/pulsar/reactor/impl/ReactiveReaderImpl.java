@@ -17,6 +17,7 @@ package com.rpuch.pulsar.reactor.impl;
 
 import com.rpuch.pulsar.reactor.api.ReactiveReader;
 import com.rpuch.pulsar.reactor.reactor.ChainStream;
+import com.rpuch.pulsar.reactor.reactor.Reactor;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Reader;
@@ -45,7 +46,7 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
 
     @Override
     public Mono<Message<T>> readNext() {
-        return Mono.fromFuture(reader::readNextAsync);
+        return Reactor.monoFromFuture(reader::readNextAsync);
     }
 
     @Override
@@ -55,7 +56,7 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
 
     @Override
     public Mono<Boolean> hasMessageAvailable() {
-        return Mono.fromFuture(reader::hasMessageAvailableAsync);
+        return Reactor.monoFromFuture(reader::hasMessageAvailableAsync);
     }
 
     @Override
@@ -65,11 +66,11 @@ public class ReactiveReaderImpl<T> implements ReactiveReader<T> {
 
     @Override
     public Mono<Void> seek(MessageId messageId) {
-        return Mono.fromFuture(() -> reader.seekAsync(messageId));
+        return Reactor.monoFromFuture(() -> reader.seekAsync(messageId));
     }
 
     @Override
     public Mono<Void> seek(long timestamp) {
-        return Mono.fromFuture(() -> reader.seekAsync(timestamp));
+        return Reactor.monoFromFuture(() -> reader.seekAsync(timestamp));
     }
 }

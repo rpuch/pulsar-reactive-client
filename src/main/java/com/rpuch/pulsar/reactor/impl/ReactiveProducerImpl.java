@@ -17,6 +17,7 @@ package com.rpuch.pulsar.reactor.impl;
 
 import com.rpuch.pulsar.reactor.api.ReactiveProducer;
 import com.rpuch.pulsar.reactor.api.ReactiveTypedMessageBuilder;
+import com.rpuch.pulsar.reactor.reactor.Reactor;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerStats;
@@ -45,12 +46,12 @@ public class ReactiveProducerImpl<T> implements ReactiveProducer<T> {
 
     @Override
     public Mono<MessageId> send(T message) {
-        return Mono.fromFuture(() -> coreProducer.sendAsync(message));
+        return Reactor.monoFromFuture(() -> coreProducer.sendAsync(message));
     }
 
     @Override
     public Mono<Void> flush() {
-        return Mono.fromFuture(coreProducer::flushAsync);
+        return Reactor.monoFromFuture(coreProducer::flushAsync);
     }
 
     @Override

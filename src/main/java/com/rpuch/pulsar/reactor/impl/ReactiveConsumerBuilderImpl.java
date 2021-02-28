@@ -17,6 +17,7 @@ package com.rpuch.pulsar.reactor.impl;
 
 import com.rpuch.pulsar.reactor.api.ReactiveConsumer;
 import com.rpuch.pulsar.reactor.api.ReactiveConsumerBuilder;
+import com.rpuch.pulsar.reactor.reactor.Reactor;
 import org.apache.pulsar.client.api.BatchReceivePolicy;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.ConsumerBuilder;
@@ -56,7 +57,7 @@ public class ReactiveConsumerBuilderImpl<T> implements ReactiveConsumerBuilder<T
         return Mono.usingWhen(
                 createCoreConsumer(),
                 coreConsumer -> transformation.apply(new ReactiveConsumerImpl<>(coreConsumer)),
-                coreConsumer -> Mono.fromFuture(coreConsumer::closeAsync)
+                coreConsumer -> Reactor.monoFromFuture(coreConsumer::closeAsync)
         );
     }
 
@@ -65,12 +66,12 @@ public class ReactiveConsumerBuilderImpl<T> implements ReactiveConsumerBuilder<T
         return Flux.usingWhen(
                 createCoreConsumer(),
                 coreConsumer -> transformation.apply(new ReactiveConsumerImpl<>(coreConsumer)),
-                coreConsumer -> Mono.fromFuture(coreConsumer::closeAsync)
+                coreConsumer -> Reactor.monoFromFuture(coreConsumer::closeAsync)
         );
     }
 
     private Mono<Consumer<T>> createCoreConsumer() {
-        return Mono.fromFuture(coreBuilder::subscribeAsync);
+        return Reactor.monoFromFuture(coreBuilder::subscribeAsync);
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
