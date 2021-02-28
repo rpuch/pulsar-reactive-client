@@ -194,7 +194,7 @@ public class ReaderIntegrationTests extends TestWithPulsar {
     }
 
     @Test
-    @Disabled("Enable back when it becomes clear to 'take data until the topic is terminated'")
+    @Disabled("Enable back when it becomes clear how to 'take data until the topic is terminated'")
     void hasReachedEndOfTopicSeesEndOfTopic() throws Exception {
         produceZeroToNineWithoutSchema();
         terminateTopic();

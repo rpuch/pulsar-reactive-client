@@ -19,6 +19,7 @@ import org.apache.pulsar.client.api.ConsumerStats;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Messages;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -44,6 +45,8 @@ public interface ReactiveConsumer<T> {
     String getSubscription();
 
     Mono<Void> unsubscribe();
+
+    Flux<Message<T>> messages();
 
     Mono<Message<T>> receive();
 

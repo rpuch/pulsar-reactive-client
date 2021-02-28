@@ -1,6 +1,5 @@
 package com.rpuch.pulsar.reactor.impl;
 
-import com.rpuch.pulsar.reactor.utils.Futures;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.ConsumerStats;
 import org.apache.pulsar.client.api.Message;
@@ -13,8 +12,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import static com.rpuch.pulsar.reactor.utils.Futures.failedFuture;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -64,6 +65,29 @@ class ReactiveConsumerImplTest {
 
         verify(coreConsumer).unsubscribeAsync();
     }
+
+    @Test
+    void messagesCallsReceiveAsyncMethodOnCoreConsumer() {
+        when(coreConsumer.receiveAsync()).then(NextMessageAnswer.produce("a", "b"));
+
+        reactiveConsumer.messages()
+                .as(StepVerifier::create)
+                .assertNext(message -> assertThat(message.getValue(), is("a")))
+                .assertNext(message -> assertThat(message.getValue(), is("b")))
+                .expectTimeout(Duration.ofMillis(100))
+                .verify();
+    }
+
+    @Test
+    void messagesConvertsFutureFailureToError() {
+        RuntimeException exception = new RuntimeException("Oops");
+        when(coreConsumer.receiveAsync()).thenReturn(failedFuture(exception));
+
+        reactiveConsumer.messages()
+                .as(StepVerifier::create)
+                .expectErrorSatisfies(ex -> assertThat(ex, sameInstance(exception)))
+                .verify();
+    }
     
     @Test
     void receiveCallsCorrespondingAsyncMethodOnCoreConsumer() {
@@ -78,7 +102,7 @@ class ReactiveConsumerImplTest {
     @Test
     void receiveConvertsFutureFailureToError() {
         RuntimeException exception = new RuntimeException("Oops");
-        when(coreConsumer.receiveAsync()).thenReturn(Futures.failedFuture(exception));
+        when(coreConsumer.receiveAsync()).thenReturn(failedFuture(exception));
 
         reactiveConsumer.receive()
                 .as(StepVerifier::create)
@@ -99,7 +123,7 @@ class ReactiveConsumerImplTest {
     @Test
     void batchReceiveConvertsFutureFailureToError() {
         RuntimeException exception = new RuntimeException("Oops");
-        when(coreConsumer.batchReceiveAsync()).thenReturn(Futures.failedFuture(exception));
+        when(coreConsumer.batchReceiveAsync()).thenReturn(failedFuture(exception));
 
         reactiveConsumer.batchReceive()
                 .as(StepVerifier::create)

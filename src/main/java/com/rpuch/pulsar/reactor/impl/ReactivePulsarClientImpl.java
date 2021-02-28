@@ -15,6 +15,7 @@
  */
 package com.rpuch.pulsar.reactor.impl;
 
+import com.rpuch.pulsar.reactor.api.ReactiveConsumerBuilder;
 import com.rpuch.pulsar.reactor.api.ReactiveProducerBuilder;
 import com.rpuch.pulsar.reactor.api.ReactivePulsarClient;
 import com.rpuch.pulsar.reactor.api.ReactiveReaderBuilder;
@@ -43,6 +44,16 @@ public class ReactivePulsarClientImpl implements ReactivePulsarClient {
     @Override
     public <T> ReactiveProducerBuilder<T> newProducer(Schema<T> schema) {
         return new ReactiveProducerBuilderImpl<>(coreClient.newProducer(schema));
+    }
+
+    @Override
+    public ReactiveConsumerBuilder<byte[]> newConsumer() {
+        return new ReactiveConsumerBuilderImpl<>(coreClient.newConsumer());
+    }
+
+    @Override
+    public <T> ReactiveConsumerBuilder<T> newConsumer(Schema<T> schema) {
+        return new ReactiveConsumerBuilderImpl<>(coreClient.newConsumer(schema));
     }
 
     @Override

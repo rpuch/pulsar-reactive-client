@@ -51,6 +51,10 @@ public interface ReactivePulsarClient extends Closeable {
      */
     <T> ReactiveProducerBuilder<T> newProducer(Schema<T> schema);
 
+    ReactiveConsumerBuilder<byte[]> newConsumer();
+
+    <T> ReactiveConsumerBuilder<T> newConsumer(Schema<T> schema);
+
     ReactiveReaderBuilder<byte[]> newReader();
 
     <T> ReactiveReaderBuilder<T> newReader(Schema<T> schema);

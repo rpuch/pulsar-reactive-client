@@ -16,11 +16,13 @@
 package com.rpuch.pulsar.reactor.impl;
 
 import com.rpuch.pulsar.reactor.api.ReactiveConsumer;
+import com.rpuch.pulsar.reactor.reactor.ChainStream;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.ConsumerStats;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Messages;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -49,6 +51,11 @@ public class ReactiveConsumerImpl<T> implements ReactiveConsumer<T> {
     @Override
     public Mono<Void> unsubscribe() {
         return Mono.fromFuture(coreConsumer::unsubscribeAsync);
+    }
+
+    @Override
+    public Flux<Message<T>> messages() {
+        return ChainStream.infiniteChain(coreConsumer::receiveAsync);
     }
 
     @Override
