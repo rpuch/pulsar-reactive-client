@@ -46,12 +46,12 @@ public class ReactiveProducerImpl<T> implements ReactiveProducer<T> {
 
     @Override
     public Mono<MessageId> send(T message) {
-        return Reactor.monoFromFuture(() -> coreProducer.sendAsync(message));
+        return Reactor.FromFutureWithCancellationPropagation(() -> coreProducer.sendAsync(message));
     }
 
     @Override
     public Mono<Void> flush() {
-        return Reactor.monoFromFuture(coreProducer::flushAsync);
+        return Reactor.FromFutureWithCancellationPropagation(coreProducer::flushAsync);
     }
 
     @Override

@@ -59,8 +59,12 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
         return Mono.usingWhen(
                 createCoreReader(),
                 coreReader -> transformation.apply(new ReactiveReaderImpl<>(coreReader)),
-                coreReader -> Reactor.monoFromFuture(coreReader::closeAsync)
+                this::closeQuietly
         );
+    }
+
+    private Mono<Void> closeQuietly(Reader<T> coreReader) {
+        return PulsarClientClosure.closeQuietly(coreReader::closeAsync);
     }
 
     @Override
@@ -68,12 +72,12 @@ public class ReactiveReaderBuilderImpl<T> implements ReactiveReaderBuilder<T> {
         return Flux.usingWhen(
                 createCoreReader(),
                 coreReader -> transformation.apply(new ReactiveReaderImpl<>(coreReader)),
-                coreReader -> Reactor.monoFromFuture(coreReader::closeAsync)
+                this::closeQuietly
         );
     }
 
     private Mono<Reader<T>> createCoreReader() {
-        return Reactor.monoFromFuture(coreBuilder::createAsync);
+        return Reactor.FromFutureWithCancellationPropagation(coreBuilder::createAsync);
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")

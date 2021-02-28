@@ -49,8 +49,12 @@ public class ReactiveProducerBuilderImpl<T> implements ReactiveProducerBuilder<T
         return Mono.usingWhen(
                 createCoreProducer(),
                 coreReader -> transformation.apply(new ReactiveProducerImpl<>(coreReader)),
-                coreReader -> Reactor.monoFromFuture(coreReader::closeAsync)
+                this::closeQuietly
         );
+    }
+
+    private Mono<Void> closeQuietly(Producer<T> coreReader) {
+        return PulsarClientClosure.closeQuietly(coreReader::closeAsync);
     }
 
     @Override
@@ -58,12 +62,12 @@ public class ReactiveProducerBuilderImpl<T> implements ReactiveProducerBuilder<T
         return Flux.usingWhen(
                 createCoreProducer(),
                 coreReader -> transformation.apply(new ReactiveProducerImpl<>(coreReader)),
-                coreReader -> Reactor.monoFromFuture(coreReader::closeAsync)
+                this::closeQuietly
         );
     }
 
     private Mono<Producer<T>> createCoreProducer() {
-        return Reactor.monoFromFuture(coreBuilder::createAsync);
+        return Reactor.FromFutureWithCancellationPropagation(coreBuilder::createAsync);
     }
 
     @Override

@@ -69,7 +69,7 @@ public class ReactivePulsarClientImpl implements ReactivePulsarClient {
 
     @Override
     public Mono<List<String>> getPartitionsForTopic(String topic) {
-        return Reactor.monoFromFuture(() -> coreClient.getPartitionsForTopic(topic));
+        return Reactor.FromFutureWithCancellationPropagation(() -> coreClient.getPartitionsForTopic(topic));
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ReactivePulsarClientImpl implements ReactivePulsarClient {
 
     @Override
     public Mono<Void> closeReactively() {
-        return Reactor.monoFromFuture(coreClient::closeAsync);
+        return PulsarClientClosure.closeQuietly(coreClient::closeAsync);
     }
 
     @Override

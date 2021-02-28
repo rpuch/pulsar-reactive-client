@@ -57,8 +57,12 @@ public class ReactiveConsumerBuilderImpl<T> implements ReactiveConsumerBuilder<T
         return Mono.usingWhen(
                 createCoreConsumer(),
                 coreConsumer -> transformation.apply(new ReactiveConsumerImpl<>(coreConsumer)),
-                coreConsumer -> Reactor.monoFromFuture(coreConsumer::closeAsync)
+                this::closeQuietly
         );
+    }
+
+    private Mono<Void> closeQuietly(Consumer<T> coreConsumer) {
+        return PulsarClientClosure.closeQuietly(coreConsumer::closeAsync);
     }
 
     @Override
@@ -66,12 +70,12 @@ public class ReactiveConsumerBuilderImpl<T> implements ReactiveConsumerBuilder<T
         return Flux.usingWhen(
                 createCoreConsumer(),
                 coreConsumer -> transformation.apply(new ReactiveConsumerImpl<>(coreConsumer)),
-                coreConsumer -> Reactor.monoFromFuture(coreConsumer::closeAsync)
+                this::closeQuietly
         );
     }
 
     private Mono<Consumer<T>> createCoreConsumer() {
-        return Reactor.monoFromFuture(coreBuilder::subscribeAsync);
+        return Reactor.FromFutureWithCancellationPropagation(coreBuilder::subscribeAsync);
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")

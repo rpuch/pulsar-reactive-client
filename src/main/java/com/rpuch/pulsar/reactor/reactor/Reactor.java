@@ -25,7 +25,7 @@ import java.util.function.Supplier;
  * @author Roman Puchkovskiy
  */
 public class Reactor {
-    public static <T> Mono<T> monoFromFuture(Supplier<? extends CompletableFuture<? extends T>> futureSupplier) {
+    public static <T> Mono<T> FromFutureWithCancellationPropagation(Supplier<? extends CompletableFuture<? extends T>> futureSupplier) {
         AtomicReference<CompletableFuture<? extends T>> futureRef = new AtomicReference<>();
         return Mono
                 .fromFuture(() -> {
