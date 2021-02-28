@@ -42,6 +42,21 @@ MessageId messageId = client.newProducer()
         .block();
 ```
 
+### Consume an infinite stream of messaging acknowledging each after processing it starting at the very beginning of a topic ###
+
+```java
+client.newConsumer()
+        .topic("my-topic")
+        .subscriptionName("my-subscription")
+        .subscriptionInitialPosition(SubscriptionInitialPosition.Earliest)
+        .forMany(consumer -> consumer.messages().concatMap(message -> {
+            String str = new String(msg.getData());
+            System.out.println(str);
+            return consumer.acknowledge(message);
+        }))
+        .subscribe();
+```
+
 ### Receive an infinite stream of messages starting at the very beginning of a topic ###
 
 ```java
