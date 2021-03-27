@@ -263,8 +263,8 @@
         <url>https://github.com/rpuch/pulsar-reactive-client</url>
         <connection>scm:git:git@github.com:rpuch/pulsar-reactive-client.git</connection>
         <developerConnection>scm:git:git@github.com:rpuch/pulsar-reactive-client.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <licenses>
         <license>
