@@ -1,5 +1,5 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.rpuch.pulsar-reactive-client/pulsar-client-reactor.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.rpuch.pulsar-reactive-client%22%20AND%20a:%22pulsar-client-reactor%22)
-[![Build Status](https://travis-ci.com/rpuch/pulsar-reactive-client.svg?branch=master)](https://travis-ci.com/rpuch/pulsar-reactive-client)
+[![build](https://github.com/rpuch/pulsar-reactive-client/actions/workflows/maven.yml/badge.svg)](https://github.com/rpuch/pulsar-reactive-client/actions/workflows/maven.yml)
 [![codecov](https://codecov.io/gh/rpuch/pulsar-reactive-client/branch/master/graph/badge.svg?token=7IFHICD29T)](https://codecov.io/gh/rpuch/pulsar-reactive-client)
 
 # Pulsar Reactive Client #
