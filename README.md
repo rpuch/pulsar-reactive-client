@@ -4,7 +4,7 @@
 
 # Pulsar Reactive Client #
 
-This is a wrapper around asyncronous facilities provided by the official
+This is a wrapper around asynchronous facilities provided by the official
 [Apache Pulsar Java Client](https://github.com/apache/pulsar/tree/master/pulsar-client) using
 [Reactor Core](https://github.com/reactor/reactor-core) interfaces.
 
