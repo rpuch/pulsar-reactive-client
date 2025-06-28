@@ -26,11 +26,11 @@ import java.util.function.Supplier;
  */
 public class PulsarClientClosure {
     public static Mono<Void> closeQuietly(Supplier<? extends CompletableFuture<Void>> closerSupplier) {
-        return fromWithoutWithoutCancellationPropagation(closerSupplier)
+        return fromWithoutCancellationPropagation(closerSupplier)
                 .onErrorResume(AlreadyClosedException.class, ex -> Mono.empty());
     }
 
-    private static Mono<Void> fromWithoutWithoutCancellationPropagation(
+    private static Mono<Void> fromWithoutCancellationPropagation(
             Supplier<? extends CompletableFuture<Void>> closerSupplier) {
         return Mono.fromFuture(closerSupplier);
     }
