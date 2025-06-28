@@ -584,20 +584,20 @@ public interface ReactiveConsumerBuilder<T> extends Cloneable {
      * Here, Messages M1-C1 and M1-C2 belong to original message M1, M2-C1 and M2-C2 messages belong to M2 message.
      * </pre>
      * Buffering large number of outstanding uncompleted chunked messages can create memory pressure and it can be
-     * guarded by providing this @maxPendingChuckedMessage threshold. Once, consumer reaches this threshold, it drops
+     * guarded by providing this @maxPendingChunkedMessage threshold. Once, consumer reaches this threshold, it drops
      * the outstanding unchunked-messages by silently acking or asking broker to redeliver later by marking it unacked.
      * This behavior can be controlled by configuration: @autoAckOldestChunkedMessageOnQueueFull
      *
      * @default 100
      *
-     * @param maxPendingChuckedMessage
+     * @param maxPendingChunkedMessage
      * @return
      */
-    ReactiveConsumerBuilder<T> maxPendingChuckedMessage(int maxPendingChuckedMessage);
+    ReactiveConsumerBuilder<T> maxPendingChunkedMessage(int maxPendingChunkedMessage);
 
     /**
      * Buffering large number of outstanding uncompleted chunked messages can create memory pressure and it can be
-     * guarded by providing this @maxPendingChuckedMessage threshold. Once, consumer reaches this threshold, it drops
+     * guarded by providing this @maxPendingChunkedMessage threshold. Once, consumer reaches this threshold, it drops
      * the outstanding unchunked-messages by silently acking if autoAckOldestChunkedMessageOnQueueFull is true else it
      * marks them for redelivery.
      *

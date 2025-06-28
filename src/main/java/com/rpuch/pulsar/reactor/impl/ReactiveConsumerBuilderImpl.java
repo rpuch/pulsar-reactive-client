@@ -317,8 +317,8 @@ public class ReactiveConsumerBuilderImpl<T> implements ReactiveConsumerBuilder<T
     }
 
     @Override
-    public ReactiveConsumerBuilder<T> maxPendingChuckedMessage(int maxPendingChuckedMessage) {
-        coreBuilder.maxPendingChuckedMessage(maxPendingChuckedMessage);
+    public ReactiveConsumerBuilder<T> maxPendingChunkedMessage(int maxPendingChunkedMessage) {
+        coreBuilder.maxPendingChunkedMessage(maxPendingChunkedMessage);
         return this;
     }
 

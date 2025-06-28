@@ -255,7 +255,7 @@ public interface ReactiveProducerBuilder<T> extends Cloneable {
      * so, consumer will not be able to consume and ack those messages. So, those messages can
      * be only discared by msg ttl) Or configure
      * {@link ReactiveConsumerBuilder#expireTimeOfIncompleteChunkedMessage()}
-     * 5. Consumer configuration: consumer should also configure receiverQueueSize and maxPendingChuckedMessage
+     * 5. Consumer configuration: consumer should also configure receiverQueueSize and maxPendingChunkedMessage
      * </pre>
      * @param enableChunking
      * @return

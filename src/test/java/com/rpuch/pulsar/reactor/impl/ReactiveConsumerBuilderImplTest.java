@@ -568,15 +568,15 @@ class ReactiveConsumerBuilderImplTest {
     }
 
     @Test
-    void setsMaxPendingChuckedMessageOnCoreBuilder() {
-        reactiveBuilder.maxPendingChuckedMessage(1);
+    void setsMaxPendingChunkedMessageOnCoreBuilder() {
+        reactiveBuilder.maxPendingChunkedMessage(1);
 
-        verify(coreBuilder).maxPendingChuckedMessage(1);
+        verify(coreBuilder).maxPendingChunkedMessage(1);
     }
 
     @Test
-    void maxPendingChuckedMessageReturnsSameBuilder() {
-        assertThat(reactiveBuilder.maxPendingChuckedMessage(1), sameInstance(reactiveBuilder));
+    void maxPendingChunkedMessageReturnsSameBuilder() {
+        assertThat(reactiveBuilder.maxPendingChunkedMessage(1), sameInstance(reactiveBuilder));
     }
 
     @Test
