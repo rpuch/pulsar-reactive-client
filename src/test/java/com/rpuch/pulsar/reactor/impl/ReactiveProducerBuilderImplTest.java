@@ -61,7 +61,7 @@ class ReactiveProducerBuilderImplTest {
     private Producer<String> coreProducer;
 
     @Test
-    void forOneReturnsResullOfInternalTransformation() {
+    void forOneReturnsResultOfInternalTransformation() {
         when(coreBuilder.createAsync()).thenReturn(completedFuture(coreProducer));
         when(coreProducer.closeAsync()).thenReturn(completedFuture(null));
 
@@ -104,7 +104,7 @@ class ReactiveProducerBuilderImplTest {
     }
 
     @Test
-    void forManyReturnsResullOfInternalTransformation() {
+    void forManyReturnsResultOfInternalTransformation() {
         when(coreBuilder.createAsync()).thenReturn(completedFuture(coreProducer));
         when(coreProducer.closeAsync()).thenReturn(completedFuture(null));
 

@@ -56,7 +56,7 @@ class ReactiveConsumerBuilderImplTest {
     private Consumer<String> coreConsumer;
 
     @Test
-    void forOneReturnsResullOfInternalTransformation() {
+    void forOneReturnsResultOfInternalTransformation() {
         when(coreBuilder.subscribeAsync()).thenReturn(completedFuture(coreConsumer));
         when(coreConsumer.closeAsync()).thenReturn(completedFuture(null));
 
@@ -99,7 +99,7 @@ class ReactiveConsumerBuilderImplTest {
     }
 
     @Test
-    void forManyReturnsResullOfInternalTransformation() {
+    void forManyReturnsResultOfInternalTransformation() {
         when(coreBuilder.subscribeAsync()).thenReturn(completedFuture(coreConsumer));
         when(coreConsumer.closeAsync()).thenReturn(completedFuture(null));
 

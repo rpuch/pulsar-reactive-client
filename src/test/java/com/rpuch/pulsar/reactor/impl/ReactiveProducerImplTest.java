@@ -112,7 +112,7 @@ class ReactiveProducerImplTest {
     }
 
     @Test
-    void newMessageWithScheaReturnsABuilderCooperatingWithCoreProducer() {
+    void newMessageWithSchemaReturnsABuilderCooperatingWithCoreProducer() {
         when(coreProducer.newMessage(any(StringSchema.class))).thenReturn(messageBuilder);
 
         assertThat(reactiveProducer.newMessage(Schema.STRING), notNullValue());
