@@ -113,7 +113,7 @@ class ReactiveReaderBuilderImplTest {
     }
     
     @Test
-    void forOneReturnsResullOfInternalTransformation() {
+    void forOneReturnsResultOfInternalTransformation() {
         when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
@@ -156,7 +156,7 @@ class ReactiveReaderBuilderImplTest {
     }
 
     @Test
-    void forManyReturnsResullOfInternalTransformation() {
+    void forManyReturnsResultOfInternalTransformation() {
         when(coreBuilder.createAsync()).thenReturn(completedFuture(coreReader));
         when(coreReader.closeAsync()).thenReturn(completedFuture(null));
 
